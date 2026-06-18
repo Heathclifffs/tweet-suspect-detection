@@ -1,0 +1,70 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: uv run python src/download.py
+    deps:
+    - path: src/download.py
+      hash: md5
+      md5: 282c6bd3951d8d90fae90d51d07a756e
+      size: 391
+    outs:
+    - path: data/raw/tweets.csv
+      hash: md5
+      md5: 60e5f26c964cb0a766047fd993102170
+      size: 4695170
+  preprocess:
+    cmd: uv run python src/preprocessing.py
+    deps:
+    - path: data/raw/tweets.csv
+      hash: md5
+      md5: 60e5f26c964cb0a766047fd993102170
+      size: 4695170
+    - path: src/preprocessing.py
+      hash: md5
+      md5: a6fe38805c9df8e4e894777173383a43
+      size: 859
+    outs:
+    - path: data/processed/tweets_clean.csv
+      hash: md5
+      md5: 4a97a11a47910b7592321acc0977be9d
+      size: 7572111
+  train:
+    cmd: uv run python src/models/train.py
+    deps:
+    - path: data/processed/tweets_clean.csv
+      hash: md5
+      md5: 4a97a11a47910b7592321acc0977be9d
+      size: 7572111
+    - path: src/models/train.py
+      hash: md5
+      md5: ff2eb2a18e149f0098ddc1369010d252
+      size: 1111
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: cf7d050e9eb5b4d6c74e86de02b5ffad
+      size: 40863
+    - path: models/test_predictions.csv
+      hash: md5
+      md5: 77f98baf567f12e2f5c33631b8b9c46b
+      size: 48002
+    - path: models/vectorizer.pkl
+      hash: md5
+      md5: 037bab2316bb08c69eb8ef3a0e38b331
+      size: 179962
+  evaluate:
+    cmd: uv run python src/models/evaluate.py
+    deps:
+    - path: models/test_predictions.csv
+      hash: md5
+      md5: 77f98baf567f12e2f5c33631b8b9c46b
+      size: 48002
+    - path: src/models/evaluate.py
+      hash: md5
+      md5: 37e317048b722388d985b58af0e1a30f
+      size: 833
+    outs:
+    - path: models/metrics.json
+      hash: md5
+      md5: 94bf78fea499c136c3524fa457e292d5
+      size: 89

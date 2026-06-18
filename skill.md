@@ -7,21 +7,21 @@
 ##  Bonnes pratiques transversales (à maintenir TOUT au long du projet)
 
 ### GIT
-- [ ] **G.1** Commits réguliers avec messages explicites (en français ou anglais)
-- [ ] **G.2** `.gitignore` propre (inclure `.dvc/`, `__pycache__/`, `.env`, `data/`, etc.)
-- [ ] **G.3** Ne jamais versionner les données brutes ou les modèles volumineux dans Git
+- [x] **G.1** Commits réguliers avec messages explicites (en français ou anglais)
+- [x] **G.2** `.gitignore` propre (inclure `.dvc/`, `__pycache__/`, `.env`, `data/`, etc.)
+- [x] **G.3** Ne jamais versionner les données brutes ou les modèles volumineux dans Git
 - [ ] **G.4** Faire un `git push` après chaque avancée significative
 
 ### Structure du projet
-- [ ] **S.1** Arborescence claire et organisée (sources, notebooks, données, modèles, rapports)
+- [x] **S.1** Arborescence claire et organisée (sources, notebooks, données, modèles, rapports)
 - [ ] **S.2** Code modulaire : fonctions réutilisables dans des scripts `.py` séparés
 - [ ] **S.3** Notebooks réservés à l'exploration / démo — pas la logique métier principale
 
 ### Environnement Python (avec uv)
-- [ ] **E.1** Utiliser **uv** pour la gestion de l'environnement et des dépendances
-- [ ] **E.2** Initialiser le projet avec `uv init` ou `uv venv`
-- [ ] **E.3** Installer les dépendances avec `uv add <package>` (pas de `pip install`)
-- [ ] **E.4** Générer/Maintenir `pyproject.toml` et `uv.lock` pour la reproductibilité
+- [x] **E.1** Utiliser **uv** pour la gestion de l'environnement et des dépendances
+- [x] **E.2** Initialiser le projet avec `uv init` ou `uv venv`
+- [x] **E.3** Installer les dépendances avec `uv add <package>` (pas de `pip install`)
+- [x] **E.4** Générer/Maintenir `pyproject.toml` et `uv.lock` pour la reproductibilité
 - [ ] **E.5** Utiliser `uv sync` pour reproduire l'environnement depuis un clone frais
 - [ ] **E.6** Ne pas installer de packages en dehors de l'environnement uv
 
@@ -58,10 +58,10 @@
 
 ##  Partie 2 — Gestion des données avec DVC (15 pts)
 
-- [ ] **2.1** Initialiser Git dans le projet
-- [ ] **2.2** Initialiser DVC (`dvc init`)
-- [ ] **2.3** Ajouter le dataset à DVC (`dvc add`)
-- [ ] **2.4** Configurer un stockage distant (local / Google Drive / S3)
+- [x] **2.1** Initialiser Git dans le projet
+- [x] **2.2** Initialiser DVC (`dvc init`)
+- [x] **2.3** Ajouter le dataset à DVC (`dvc add`)
+- [x] **2.4** Configurer un stockage distant (local / Google Drive / S3)
 - [ ] **2.5** Créer un pipeline DVC — étape **prétraitement**
 - [ ] **2.6** Créer un pipeline DVC — étape **entraînement**
 - [ ] **2.7** Créer un pipeline DVC — étape **évaluation**

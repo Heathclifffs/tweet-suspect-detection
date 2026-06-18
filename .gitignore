@@ -9,21 +9,18 @@ wheels/
 # Virtual environments
 .venv
 
-# Data (versioned by DVC, not Git)
-data/raw/**
-!data/raw/*.dvc
-data/processed/**
-!data/processed/*.dvc
-data/interim/**
-!data/interim/*.dvc
+# Data (versioned by DVC pipeline, not Git)
+data/raw/
+data/processed/
+data/interim/
 
-# Models (versioned by DVC)
+# Models (versioned by DVC pipeline, not Git)
 models/*.pkl
 models/*.joblib
 models/*.h5
 models/*.pt
 
-# DVC internal
+# DVC internal cache
 .dvc/cache/
 .dvc/tmp/
 
