@@ -1,1 +1,4 @@
 /test_predictions.csv
+/confusion_matrices.png
+/roc_curves.png
+/test_data.csv

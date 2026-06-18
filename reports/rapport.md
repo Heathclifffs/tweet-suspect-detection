@@ -28,11 +28,18 @@ Deux variables sont disponibles : `message` (texte du tweet) et `label` (classe)
 
 Le nettoyage du texte est effectué via `src/preprocessing.py` et comprend les étapes suivantes :
 
-1. **Passage en minuscules** — uniformisation de la casse
-2. **Suppression des URLs** — les liens n'apportent pas d'information sémantique
-3. **Suppression des caractères spéciaux** — seuls les caractères alphabétiques sont conservés
-4. **Suppression des stop words** — mots fréquents non discriminants (NLTK english stop words)
-5. **Suppression des tweets vides** — 15 tweets vidés par le nettoyage sur 60 000
+1. **Minuscules** — uniformisation de la casse
+2. **Suppression des URLs** — les liens n'ont pas de valeur sémantique
+3. **Suppression des mentions** (`@utilisateur`) — identifiants uniques non généralisables
+4. **Nettoyage des hashtags** — on garde le mot, on supprime le `#`
+5. **Entités HTML** (`&amp;`, `&lt;`, etc.) — conversion en espaces
+6. **Normalisation des répétitions** — `goooood` → `good`
+7. **Expansion des contractions** — `don't` → `do not`
+8. **Suppression des caractères spéciaux** — seuls `[a-zA-Z]` sont conservés
+9. **Suppression des stop words** — mots fréquents non discriminants (NLTK) + mots < 3 lettres
+10. **Lemmatisation** avec `WordNetLemmatizer` et POS tagging — `running` → `run`
+
+**346 tweets** vides après nettoyage sur 60 000 (supprimés).
 
 Ces choix sont documentés dans le notebook d'analyse exploratoire (`notebooks/01_eda.ipynb`). La modélisation complète est détaillée dans `notebooks/02_modeling.ipynb`.
 
@@ -70,9 +77,9 @@ La classe suspect est sous-représentée. La stratégie `class_weight="balanced"
 
 | Modèle | Accuracy | Precision | Recall | F1-Score |
 |--------|----------|-----------|--------|----------|
-| Logistic Regression | 96.07% | 97.58% | 98.06% | 97.82% |
-| Naive Bayes | 92.50% | 92.29% | 99.99% | 95.99% |
-| Random Forest | 97.09% | 97.59% | 99.21% | 98.39% |
+| Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% |
+| Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% |
+| Random Forest | 97.54% | 98.16% | 99.12% | 98.64% |
 
 Le **Random Forest** obtient les meilleures performances globales avec un F1-Score de **98.39%**. Naive Bayes a un recall parfait (99.99%) mais une précision plus faible.
 

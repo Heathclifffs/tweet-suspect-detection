@@ -92,12 +92,15 @@ uv run python src/download.py
 
 Les tweets sont nettoyés via `src/preprocessing.py` :
 - Passage en minuscules
-- Suppression des URLs
-- Suppression des caractères spéciaux (garde seulement `[a-zA-Z\s]`)
-- Suppression des stop words (NLTK english)
-- Suppression des tweets vides résultants
+- Suppression des URLs et mentions (`@user`)
+- Nettoyage des hashtags (garde le mot, enlève `#`)
+- Expansion des contractions (`don't` → `do not`)
+- Normalisation des répétitions (`goooood` → `good`)
+- Suppression des caractères spéciaux, entités HTML
+- Suppression des stop words (NLTK) + mots < 3 lettres
+- **Lemmatisation** avec POS tagging (WordNet)
 
-Environ 15 tweets vides supprimés sur 60 000.
+Environ 346 tweets vides supprimés sur 60 000.
 
 ## Modèles et résultats
 
@@ -105,9 +108,9 @@ Environ 15 tweets vides supprimés sur 60 000.
 
 | Modèle | Accuracy | Precision | Recall | F1-Score |
 |--------|----------|-----------|--------|----------|
-| Logistic Regression | 96.07% | 97.58% | 98.06% | 97.82% |
-| Naive Bayes | 92.50% | 92.29% | 99.99% | 95.99% |
-| Random Forest | 97.09% | 97.59% | 99.21% | 98.39% |
+| Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% |
+| Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% |
+| Random Forest | 97.54% | 98.16% | 99.12% | 98.64% |
 
 Représentation : TF-IDF (5000 features).  
 Gestion du déséquilibre : `class_weight="balanced"`.
