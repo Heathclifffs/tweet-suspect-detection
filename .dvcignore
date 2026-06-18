@@ -1,0 +1,19 @@
+# DVC ignore file
+# Add patterns to ignore in DVC tracking
+
+# Environment
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Reports
+reports/
+
+# Notebooks
+notebooks/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,43 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Data (versioned by DVC, not Git)
+data/raw/**
+!data/raw/*.dvc
+data/processed/**
+!data/processed/*.dvc
+data/interim/**
+!data/interim/*.dvc
+
+# Models (versioned by DVC)
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.pt
+
+# DVC internal
+.dvc/cache/
+.dvc/tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environnement
+.env
+*.env.local
