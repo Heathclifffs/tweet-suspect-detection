@@ -157,12 +157,11 @@ Gestion du déséquilibre : `class_weight="balanced"`.
 
 ## Déploiement
 
-Deux options prévues :
-
-### Option A : Streamlit
+### Option A : Streamlit ✅
 ```bash
 uv run streamlit run src/deploy/streamlit_app.py
 ```
+L'interface permet de saisir un tweet et d'obtenir la prédiction des 3 modèles avec la probabilité associée.
 
 ### Option B : API FastAPI
 ```bash

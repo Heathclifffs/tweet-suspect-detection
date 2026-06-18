@@ -144,16 +144,18 @@ Les résultats détaillés sont visibles dans `notebooks/02_modeling.ipynb`.
 
 # Déploiement
 
-Deux solutions prévues (à implémenter) :
-
-- **Streamlit** : interface utilisateur pour saisir un tweet et obtenir la prédiction
-- **API FastAPI** : endpoint REST pour la prédiction
+L'application **Streamlit** est déployée localement. L'interface permet de saisir un tweet, choisir un modèle et obtenir la prédiction avec la probabilité associée.
 
 ```bash
-# Lancer l'application Streamlit
 uv run streamlit run src/deploy/streamlit_app.py
+```
 
-# Lancer l'API FastAPI
+![Interface Streamlit](figures/streamlit_app.png)
+![Prédiction Streamlit](figures/streamlit_prediction.png)
+
+Une **API FastAPI** est également prévue comme alternative :
+
+```bash
 uv run uvicorn src.deploy.api:app --reload
 ```
 
