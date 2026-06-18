@@ -44,17 +44,17 @@
 
 ##  Partie 1 — Exploration et prétraitement (15 pts)
 
-- [ ] **1.1** Charger les données avec Pandas *(dans le notebook EDA)*
-- [ ] **1.2** Identifier les variables disponibles *(dans le notebook EDA)*
-- [ ] **1.3** Vérifier les valeurs manquantes *(dans le notebook EDA)*
-- [ ] **1.4** Étudier la distribution des classes *(dans le notebook EDA)*
-- [ ] **1.5** Produire des visualisations pertinentes *(dans le notebook EDA)*
+- [x] **1.1** Charger les données avec Pandas ✅
+- [x] **1.2** Identifier les variables disponibles ✅
+- [x] **1.3** Vérifier les valeurs manquantes ✅
+- [x] **1.4** Étudier la distribution des classes ✅
+- [x] **1.5** Produire des visualisations pertinentes ✅ (6 figures dans `reports/figures/`)
 - [x] **1.6** Conversion en minuscules (dans `src/preprocessing.py`)
 - [x] **1.7** Suppression des caractères spéciaux (dans `src/preprocessing.py`)
 - [x] **1.8** Suppression des URLs (dans `src/preprocessing.py`)
 - [x] **1.9** Suppression des stop words (dans `src/preprocessing.py`)
 - [ ] **1.10** Lemmatisation ou stemming (optionnel mais recommandé)
-- [ ] **1.11** Documenter les choix de prétraitement
+- [x] **1.11** Documenter les choix de prétraitement ✅ (dans le notebook)
 
 ##  Partie 2 — Gestion des données avec DVC (15 pts)
 
