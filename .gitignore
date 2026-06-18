@@ -9,8 +9,7 @@ wheels/
 # Virtual environments
 .venv
 
-# Data (versioned by DVC pipeline, not Git)
-data/raw/
+# Data processed/interim (versioned by DVC pipeline, not Git)
 data/processed/
 data/interim/
 

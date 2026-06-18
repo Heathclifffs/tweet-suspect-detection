@@ -1,17 +1,5 @@
 schema: '2.0'
 stages:
-  download:
-    cmd: uv run python src/download.py
-    deps:
-    - path: src/download.py
-      hash: md5
-      md5: 282c6bd3951d8d90fae90d51d07a756e
-      size: 391
-    outs:
-    - path: data/raw/tweets.csv
-      hash: md5
-      md5: 60e5f26c964cb0a766047fd993102170
-      size: 4695170
   preprocess:
     cmd: uv run python src/preprocessing.py
     deps:

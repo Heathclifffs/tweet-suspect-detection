@@ -1,11 +1,4 @@
 stages:
-  download:
-    cmd: uv run python src/download.py
-    deps:
-      - src/download.py
-    outs:
-      - data/raw/tweets.csv
-
   preprocess:
     cmd: uv run python src/preprocessing.py
     deps:
