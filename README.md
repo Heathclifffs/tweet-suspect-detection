@@ -17,7 +17,8 @@ tweet-suspect-detection/
 │   ├── processed/         # Données prétraitées (pipeline DVC)
 │   └── interim/           # Données intermédiaires
 ├── notebooks/
-│   └── 01_eda.ipynb       # Analyse exploratoire des données
+│   ├── 01_eda.ipynb        # Analyse exploratoire des données
+│   └── 02_modeling.ipynb   # Modélisation, comparaison, optimisation
 ├── src/
 │   ├── download.py        # Téléchargement interactif du dataset
 │   ├── preprocessing.py   # Nettoyage du texte

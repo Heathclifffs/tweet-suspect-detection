@@ -34,7 +34,7 @@ Le nettoyage du texte est effectué via `src/preprocessing.py` et comprend les �
 4. **Suppression des stop words** — mots fréquents non discriminants (NLTK english stop words)
 5. **Suppression des tweets vides** — 15 tweets vidés par le nettoyage sur 60 000
 
-Ces choix sont documentés dans le notebook d'analyse exploratoire (`notebooks/01_eda.ipynb`).
+Ces choix sont documentés dans le notebook d'analyse exploratoire (`notebooks/01_eda.ipynb`). La modélisation complète est détaillée dans `notebooks/02_modeling.ipynb`.
 
 ## Représentation des données
 
@@ -86,7 +86,7 @@ Les courbes ROC sont disponibles dans `reports/figures/roc_curves.png`. Les troi
 
 ## Validation croisée
 
-La séparation train/test a été faite en **80/20 avec stratification** pour préserver la distribution des classes. Une validation croisée sera ajoutée en phase d'optimisation.
+La séparation train/test a été faite en **80/20 avec stratification** pour préserver la distribution des classes. Une validation croisée **5-fold** a été appliquée pour évaluer la stabilité des modèles (résultats dans `notebooks/02_modeling.ipynb`).
 
 # Pipeline DVC
 
@@ -104,11 +104,12 @@ Le dataset est téléchargeable via `uv run python src/download.py` (télécharg
 
 # Optimisation
 
-Une recherche d'hyperparamètres (Grid Search ou Random Search) sera effectuée pour optimiser les modèles, notamment :
+Une recherche d'hyperparamètres (Grid Search) a été effectuée sur deux modèles :
 
-- Régression Logistique : `C`, type de pénalité
-- Random Forest : `n_estimators`, `max_depth`, `min_samples_split`
-- TF-IDF : `max_features`, `ngram_range`
+- **Régression Logistique** : `C` ∈ {0.1, 1, 10} — meilleur paramètre trouvé via validation croisée 3-fold
+- **Random Forest** : `n_estimators` ∈ {50, 100}, `max_depth` ∈ {10, 20, None} — meilleur paramètre trouvé via validation croisée 3-fold
+
+Les résultats détaillés sont visibles dans `notebooks/02_modeling.ipynb`.
 
 # Déploiement
 

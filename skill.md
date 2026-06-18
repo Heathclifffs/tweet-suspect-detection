@@ -72,9 +72,9 @@
 
 ##  Partie 3 — Représentation des données (15 pts)
 
-- [ ] **3.1** Choisir et implémenter **TF-IDF** ou **Bag of Words**
+- [x] **3.1** **TF-IDF** implémenté (5000 features) ✅
 - [ ] **3.2** *(Bonus)* Implémenter une approche avancée : Word2Vec / GloVe / FastText / Sentence Transformers / BERT
-- [ ] **3.3** Justifier le choix retenu
+- [x] **3.3** Justifier le choix retenu ✅ (dans le rapport et le notebook EDA)
 - [ ] **3.4** *(Optionnel)* Appliquer une réduction de dimension : PCA / t-SNE / UMAP
 
 ##  Partie 4 — Construction des modèles (20 pts)
@@ -88,7 +88,7 @@
 ##  Partie 5 — Entraînement et validation (10 pts)
 
 - [x] **5.1** Séparer les données en train / test (80/20 stratifié) ✅
-- [ ] **5.2** Utiliser une validation croisée adaptée
+- [x] **5.2** Validation croisée 5-fold ✅ (dans `notebooks/02_modeling.ipynb`)
 - [x] **5.3** Calculer Accuracy ✅
 - [x] **5.4** Calculer Precision ✅
 - [x] **5.5** Calculer Recall ✅
@@ -99,8 +99,8 @@
 - [x] **6.1** Produire la matrice de confusion ✅ (3 modèles dans `models/confusion_matrices.png`)
 - [x] **6.2** Produire la courbe ROC ✅ (3 courbes dans `models/roc_curves.png`)
 - [x] **6.3** Calculer l'AUC ✅
-- [ ] **6.4** Effectuer une recherche d'hyperparamètres (Grid Search ou Random Search)
-- [ ] **6.5** Présenter les paramètres optimaux obtenus
+- [x] **6.4** Grid Search sur LogisticRegression et RandomForest ✅
+- [x] **6.5** Présenter les paramètres optimaux obtenus ✅ (dans `notebooks/02_modeling.ipynb`)
 
 ##  Partie 7 — Déploiement (10 pts)
 
