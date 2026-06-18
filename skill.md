@@ -80,25 +80,25 @@
 ##  Partie 4 — Construction des modèles (20 pts)
 
 - [x] **4.1** Gérer le déséquilibre des classes — `class_weight="balanced"` sur LogisticRegression
-- [x] **4.2** Implémenter **Modèle 1** : Logistic Regression ✅ (dans le pipeline)
-- [ ] **4.3** Implémenter **Modèle 2** : Naive Bayes
-- [ ] **4.4** Implémenter **Modèle 3** : Random Forest (ou SVM / XGBoost / LSTM / BERT)
-- [ ] **4.5** Comparer les performances des 3 modèles
+- [x] **4.2** Implémenter **Modèle 1** : Logistic Regression ✅
+- [x] **4.3** Implémenter **Modèle 2** : Naive Bayes ✅
+- [x] **4.4** Implémenter **Modèle 3** : Random Forest ✅
+- [x] **4.5** Comparer les performances des 3 modèles ✅
 
 ##  Partie 5 — Entraînement et validation (10 pts)
 
-- [x] **5.1** Séparer les données en train / test (80/20 stratifié)
+- [x] **5.1** Séparer les données en train / test (80/20 stratifié) ✅
 - [ ] **5.2** Utiliser une validation croisée adaptée
-- [x] **5.3** Calculer Accuracy
-- [x] **5.4** Calculer Precision
-- [x] **5.5** Calculer Recall
-- [x] **5.6** Calculer F1-Score
+- [x] **5.3** Calculer Accuracy ✅
+- [x] **5.4** Calculer Precision ✅
+- [x] **5.5** Calculer Recall ✅
+- [x] **5.6** Calculer F1-Score ✅
 
 ##  Partie 6 — Évaluation et optimisation (10 pts)
 
-- [ ] **6.1** Produire la matrice de confusion
-- [ ] **6.2** Produire la courbe ROC
-- [ ] **6.3** Calculer l'AUC
+- [x] **6.1** Produire la matrice de confusion ✅ (3 modèles dans `models/confusion_matrices.png`)
+- [x] **6.2** Produire la courbe ROC ✅ (3 courbes dans `models/roc_curves.png`)
+- [x] **6.3** Calculer l'AUC ✅
 - [ ] **6.4** Effectuer une recherche d'hyperparamètres (Grid Search ou Random Search)
 - [ ] **6.5** Présenter les paramètres optimaux obtenus
 
@@ -110,12 +110,12 @@
 
 ##  Partie 8 — Documentation et rapport (5 pts)
 
-- [ ] **8.1** Rédiger l'**Introduction** — présentation du problème
-- [ ] **8.2** Rédiger la **Méthodologie** — prétraitement, représentation, modèles
-- [ ] **8.3** Rédiger les **Résultats** — comparaison des performances, visualisations
-- [ ] **8.4** Rédiger la **Discussion** — limites, difficultés, perspectives
-- [ ] **8.5** Rédiger le **README.md** détaillé du dépôt GitHub
-- [ ] **8.6** Générer le rapport au format **PDF**
+- [x] **8.1** Rédiger l'**Introduction** ✅
+- [x] **8.2** Rédiger la **Méthodologie** ✅
+- [x] **8.3** Rédiger les **Résultats** ✅
+- [x] **8.4** Rédiger la **Discussion** ✅
+- [x] **8.5** Rédiger le **README.md** détaillé du dépôt GitHub ✅
+- [x] **8.6** Générer le rapport au format **PDF** ✅
 - [ ] **8.7** Préparer les **captures d'écran** (EDA, pipeline DVC, matrice de confusion, courbe ROC, interface)
 
 ##  Bonus (+5 pts)
