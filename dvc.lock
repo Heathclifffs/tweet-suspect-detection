@@ -25,17 +25,29 @@ stages:
       size: 7572111
     - path: src/models/train.py
       hash: md5
-      md5: ff2eb2a18e149f0098ddc1369010d252
-      size: 1111
+      md5: 9c1d9d2699bcb5027e7ee01d6890d811
+      size: 2020
     outs:
-    - path: models/model.pkl
+    - path: models/logistic_regression.pkl
       hash: md5
-      md5: cf7d050e9eb5b4d6c74e86de02b5ffad
+      md5: 80ea958318c00c582c7e1a4e2bf1f99e
       size: 40863
+    - path: models/naive_bayes.pkl
+      hash: md5
+      md5: 93b22b369892b9b83a31f95caf84871c
+      size: 160791
+    - path: models/random_forest.pkl
+      hash: md5
+      md5: 0fd05a201e2a46403eb7d7315baf1ce1
+      size: 90075705
+    - path: models/test_data.csv
+      hash: md5
+      md5: 753479842d62c6ac67fa99a47771dcec
+      size: 605449
     - path: models/test_predictions.csv
       hash: md5
-      md5: 77f98baf567f12e2f5c33631b8b9c46b
-      size: 48002
+      md5: b33fa2992cf93c97ab4f39d8a07144fd
+      size: 1236207
     - path: models/vectorizer.pkl
       hash: md5
       md5: 037bab2316bb08c69eb8ef3a0e38b331
@@ -45,14 +57,22 @@ stages:
     deps:
     - path: models/test_predictions.csv
       hash: md5
-      md5: 77f98baf567f12e2f5c33631b8b9c46b
-      size: 48002
+      md5: b33fa2992cf93c97ab4f39d8a07144fd
+      size: 1236207
     - path: src/models/evaluate.py
       hash: md5
-      md5: 37e317048b722388d985b58af0e1a30f
-      size: 833
+      md5: bf48bbe4ff9f1c760e8c66048443bbb1
+      size: 2523
     outs:
+    - path: models/confusion_matrices.png
+      hash: md5
+      md5: 96814ccbe3b976d0eed52dbd72d9b16b
+      size: 81007
     - path: models/metrics.json
       hash: md5
-      md5: 94bf78fea499c136c3524fa457e292d5
-      size: 89
+      md5: 3f6cfaeb14804673293bd447657d0ef1
+      size: 365
+    - path: models/roc_curves.png
+      hash: md5
+      md5: ac5a941fbabfacda1f6a9c2f9e964d39
+      size: 87441

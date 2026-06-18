@@ -1,8 +1,17 @@
 import pandas as pd
 import joblib
+import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+
+MODELS = {
+    "logistic_regression": LogisticRegression(max_iter=1000, class_weight="balanced", random_state=42),
+    "naive_bayes": MultinomialNB(),
+    "random_forest": RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42, n_jobs=-1),
+}
 
 
 def train(input_path: str, model_dir: str):
@@ -18,16 +27,32 @@ def train(input_path: str, model_dir: str):
     X_train_vec = vectorizer.fit_transform(X_train)
     X_test_vec = vectorizer.transform(X_test)
 
-    model = LogisticRegression(max_iter=1000, class_weight="balanced")
-    model.fit(X_train_vec, y_train)
-
-    joblib.dump(model, f"{model_dir}/model.pkl")
+    os.makedirs(model_dir, exist_ok=True)
     joblib.dump(vectorizer, f"{model_dir}/vectorizer.pkl")
-
-    pd.DataFrame({"y_true": y_test, "y_pred": model.predict(X_test_vec)}).to_csv(
-        f"{model_dir}/test_predictions.csv", index=False
+    pd.DataFrame({"clean_message": X_test, "label": y_test}).to_csv(
+        f"{model_dir}/test_data.csv", index=False
     )
-    print(f"Modèle entraîné et sauvegardé dans {model_dir}/")
+
+    results = []
+
+    for name, model in MODELS.items():
+        print(f"Entraînement : {name}...")
+        model.fit(X_train_vec, y_train)
+        joblib.dump(model, f"{model_dir}/{name}.pkl")
+
+        y_pred = model.predict(X_test_vec)
+        y_proba = model.predict_proba(X_test_vec)[:, 1] if hasattr(model, "predict_proba") else y_pred.astype(float)
+
+        results.append(pd.DataFrame({
+            "model": name,
+            "y_true": y_test.values,
+            "y_pred": y_pred,
+            "y_proba": y_proba,
+        }))
+
+    all_results = pd.concat(results, ignore_index=True)
+    all_results.to_csv(f"{model_dir}/test_predictions.csv", index=False)
+    print(f"Modèles entraînés et sauvegardés dans {model_dir}/")
 
 
 if __name__ == "__main__":

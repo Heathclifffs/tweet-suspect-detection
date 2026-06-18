@@ -13,8 +13,11 @@ stages:
       - data/processed/tweets_clean.csv
       - src/models/train.py
     outs:
-      - models/model.pkl
       - models/vectorizer.pkl
+      - models/logistic_regression.pkl
+      - models/naive_bayes.pkl
+      - models/random_forest.pkl
+      - models/test_data.csv
       - models/test_predictions.csv
 
   evaluate:
@@ -22,6 +25,9 @@ stages:
     deps:
       - models/test_predictions.csv
       - src/models/evaluate.py
+    outs:
+      - models/confusion_matrices.png
+      - models/roc_curves.png
     metrics:
       - models/metrics.json:
           cache: false
