@@ -24,12 +24,11 @@ def load_models():
 
 
 st.set_page_config(
-    page_title="Détection de Tweets Suspects",
-    page_icon="🔍",
+    page_title="Detection de Tweets Suspects",
     layout="centered",
 )
 
-st.title("🔍 Détection de Tweets Suspects")
+st.title("Detection de Tweets Suspects")
 st.markdown(
     "Saisissez un tweet ci-dessous pour savoir s'il est **suspect** ou **non suspect**."
 )
@@ -37,7 +36,7 @@ st.markdown(
 vectorizer, models = load_models()
 
 tweet = st.text_area(
-    "✏️ Votre tweet",
+    "Votre tweet",
     placeholder="Ex: I hate this product, it's terrible!",
     height=120,
 )
@@ -48,39 +47,39 @@ if st.button("Analyser", type="primary", use_container_width=True):
     else:
         cleaned = clean_text(tweet)
         if not cleaned:
-            st.warning("Le tweet est vide après nettoyage.")
+            st.warning("Le tweet est vide apres nettoyage.")
         else:
             vec = vectorizer.transform([cleaned])
             for name, model in models.items():
                 pred = model.predict(vec)[0]
                 proba = model.predict_proba(vec)[0]
-                label = "🛑 Suspect" if pred == 1 else "✅ Non suspect"
+                label = "SUSPECT" if pred == 1 else "NON SUSPECT"
                 confidence = proba[pred] * 100
                 st.markdown(f"### {name}")
                 col1, col2 = st.columns(2)
-                col1.metric("Prédiction", label)
+                col1.metric("Prediction", label)
                 col2.metric("Confiance", f"{confidence:.2f}%")
                 st.progress(int(confidence))
                 st.markdown("---")
 
 else:
-    st.info("👆 Entrez un tweet et cliquez sur Analyser.")
+    st.info("Entrez un tweet et cliquez sur Analyser.")
 
 st.markdown("---")
-st.markdown("### 📊 Exemples de tweets à tester")
+st.markdown("### Exemples de tweets a tester")
 examples = [
-    "I love this! Great job everyone 👏",
+    "I love this! Great job everyone",
     "This is the worst thing ever, I hate it!",
     "Check out this article: https://example.com",
     "You are all idiots and this is stupid",
 ]
 for ex in examples:
-    if st.button(f'📝 "{ex}"', key=ex):
+    if st.button(f'Test: "{ex}"', key=ex):
         cleaned = clean_text(ex)
         if cleaned:
             vec = vectorizer.transform([cleaned])
             for name, model in models.items():
                 pred = model.predict(vec)[0]
                 proba = model.predict_proba(vec)[0]
-                label = "🛑 Suspect" if pred == 1 else "✅ Non suspect"
-                st.success(f"{name} → {label} (confiance: {proba[pred]*100:.1f}%)")
+                label = "SUSPECT" if pred == 1 else "NON SUSPECT"
+                st.success(f"{name} -> {label} (confiance: {proba[pred]*100:.1f}%)")

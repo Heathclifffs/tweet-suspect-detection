@@ -157,7 +157,7 @@ Gestion du déséquilibre : `class_weight="balanced"`.
 
 ## Déploiement
 
-### Option A : Streamlit ✅
+### Option A : Streamlit
 ```bash
 uv run streamlit run src/deploy/streamlit_app.py
 ```
