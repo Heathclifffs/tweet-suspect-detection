@@ -104,9 +104,9 @@
 
 ##  Partie 7 — Déploiement (10 pts)
 
-- [ ] **7.1** Choisir : **Streamlit** OU **API (Flask/FastAPI)**
-- [ ] **7.2** Développer l'interface
-- [ ] **7.3** Tester que la prédiction fonctionne
+- [x] **7.1** Choisir : **Streamlit** ✅
+- [x] **7.2** Développer l'interface ✅
+- [x] **7.3** Tester que la prédiction fonctionne ✅
 
 ##  Partie 8 — Documentation et rapport (5 pts)
 
@@ -116,7 +116,7 @@
 - [x] **8.4** Rédiger la **Discussion** ✅
 - [x] **8.5** Rédiger le **README.md** détaillé du dépôt GitHub ✅
 - [x] **8.6** Générer le rapport au format **PDF** ✅
-- [ ] **8.7** Préparer les **captures d'écran** (EDA, pipeline DVC, matrice de confusion, courbe ROC, interface)
+- [x] **8.7** Préparer les **captures d'écran** ✅ (EDA, matrices de confusion, courbes ROC, interface Streamlit dans `reports/figures/`)
 
 ##  Bonus (+5 pts)
 
