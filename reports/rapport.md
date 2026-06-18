@@ -81,15 +81,19 @@ La classe suspect est sous-représentée. La stratégie `class_weight="balanced"
 | Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% |
 | Random Forest | 97.54% | 98.16% | 99.12% | 98.64% |
 
-Le **Random Forest** obtient les meilleures performances globales avec un F1-Score de **98.39%**. Naive Bayes a un recall parfait (99.99%) mais une précision plus faible.
+Le **Random Forest** obtient les meilleures performances globales avec un F1-Score de **98.64%**.
 
 ## Matrices de confusion
 
-Les matrices de confusion sont disponibles dans `reports/figures/confusion_matrices.png`.
+![Matrices de confusion des 3 modèles](figures/confusion_matrices_notebook.png)
+
+Lecture : VN (haut-gauche), FP (haut-droite), FN (bas-gauche), VP (bas-droite).
 
 ## Courbes ROC et AUC
 
-Les courbes ROC sont disponibles dans `reports/figures/roc_curves.png`. Les trois modèles présentent une AUC supérieure à 0.97, confirmant leur capacité de discrimination.
+![Courbes ROC des 3 modèles](figures/roc_curves_notebook.png)
+
+Les trois modèles présentent une AUC supérieure à 0.97, confirmant leur capacité de discrimination.
 
 ## Validation croisée
 
@@ -113,8 +117,8 @@ Le dataset est téléchargeable via `uv run python src/download.py` (télécharg
 
 Une recherche d'hyperparamètres (Grid Search) a été effectuée sur deux modèles :
 
-- **Régression Logistique** : `C` ∈ {0.1, 1, 10} — meilleur paramètre trouvé via validation croisée 3-fold
-- **Random Forest** : `n_estimators` ∈ {50, 100}, `max_depth` ∈ {10, 20, None} — meilleur paramètre trouvé via validation croisée 3-fold
+- **Régression Logistique** : `C` ∈ {0.01, 0.1, 1, 10, 100} — validation croisée 5-fold
+- **Random Forest** : `n_estimators` ∈ {50, 100, 200}, `max_depth` ∈ {5, 10, 20, None} — validation croisée 3-fold
 
 Les résultats détaillés sont visibles dans `notebooks/02_modeling.ipynb`.
 
