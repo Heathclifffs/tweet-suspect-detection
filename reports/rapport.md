@@ -41,7 +41,7 @@ Le nettoyage du texte est effectué via `src/preprocessing.py` et comprend les �
 
 **346 tweets** vides après nettoyage sur 60 000 (supprimés).
 
-Ces choix sont documentés dans le notebook d'analyse exploratoire (`notebooks/01_eda.ipynb`). La modélisation complète est détaillée dans `notebooks/02_modeling.ipynb`.
+Ces choix sont documentés dans le notebook d'analyse exploratoire (`notebooks/01_eda.ipynb`). La modélisation complète est détaillée dans `notebooks/02_modeling.ipynb` (consultable avec `uv run jupyter lab`).
 
 ## Représentation des données
 
@@ -104,12 +104,32 @@ La séparation train/test a été faite en **80/20 avec stratification** pour pr
 Le pipeline reproductible se compose de 3 étapes :
 
 ```bash
-dvc repro
+uv run dvc repro
 ```
 
 1. **preprocess** — nettoyage du texte
 2. **train** — entraînement des 3 modèles avec TF-IDF
 3. **evaluate** — calcul des métriques et génération des graphiques
+
+### Commandes essentielles
+
+```bash
+uv run dvc repro          # Exécuter le pipeline
+uv run dvc status         # Vérifier l'état
+uv run dvc checkout       # Restaurer depuis le cache
+uv run dvc pull           # Récupérer depuis le remote
+uv run dvc push           # Pousser vers le remote
+```
+
+### Reproductibilité complète
+
+```bash
+git clone <repo-url>
+cd tweet-suspect-detection
+uv sync
+uv run dvc pull
+uv run dvc repro
+```
 
 Le dataset est téléchargeable via `uv run python src/download.py` (téléchargement interactif depuis Google Drive).
 
@@ -124,10 +144,18 @@ Les résultats détaillés sont visibles dans `notebooks/02_modeling.ipynb`.
 
 # Déploiement
 
-Deux solutions sont prévues :
+Deux solutions prévues (à implémenter) :
 
 - **Streamlit** : interface utilisateur pour saisir un tweet et obtenir la prédiction
 - **API FastAPI** : endpoint REST pour la prédiction
+
+```bash
+# Lancer l'application Streamlit
+uv run streamlit run src/deploy/streamlit_app.py
+
+# Lancer l'API FastAPI
+uv run uvicorn src.deploy.api:app --reload
+```
 
 # Discussion
 

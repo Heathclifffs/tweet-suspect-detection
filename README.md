@@ -60,6 +60,22 @@ uv sync
 uv run python src/download.py
 ```
 
+## Guide de démarrage rapide
+
+```bash
+# 1. Installer l'environnement
+uv sync
+
+# 2. Lancer l'analyse exploratoire (notebooks)
+uv run jupyter lab
+
+# 3. Exécuter tout le pipeline ML
+uv run dvc repro
+
+# 4. Voir les métriques
+cat models/metrics.json
+```
+
 ## Pipeline DVC
 
 Le pipeline est défini dans `dvc.yaml` et se compose de 3 étapes :
@@ -67,13 +83,37 @@ Le pipeline est défini dans `dvc.yaml` et se compose de 3 étapes :
 | Étape | Script | Entrée | Sortie |
 |-------|--------|--------|--------|
 | `preprocess` | `src/preprocessing.py` | `data/raw/tweets.csv` | `data/processed/tweets_clean.csv` |
-| `train` | `src/models/train.py` | `data/processed/tweets_clean.csv` | `models/model.pkl`, `vectorizer.pkl`, `test_predictions.csv` |
-| `evaluate` | `src/models/evaluate.py` | `models/test_predictions.csv` | `models/metrics.json` |
+| `train` | `src/models/train.py` | `data/processed/tweets_clean.csv` | `models/*.pkl`, `models/test_predictions.csv` |
+| `evaluate` | `src/models/evaluate.py` | `models/test_predictions.csv` | `models/metrics.json`, `models/*.png` |
 
-### Exécuter le pipeline
+### Commandes DVC
 
 ```bash
-dvc repro
+# Exécuter le pipeline complet
+uv run dvc repro
+
+# Vérifier l'état du pipeline (étapes modifiées)
+uv run dvc status
+
+# Restaurer les fichiers depuis le cache DVC
+uv run dvc checkout
+
+# Pousser vers le stockage distant
+uv run dvc push
+
+# Tirer depuis le stockage distant (après clone)
+uv run dvc pull
+```
+
+### Reproductibilité
+
+Depuis un clone frais :
+```bash
+git clone <repo-url>
+cd tweet-suspect-detection
+uv sync
+uv run dvc pull        # récupère les données du cache distant
+uv run dvc repro        # reproduit tout le pipeline
 ```
 
 ## Dataset
