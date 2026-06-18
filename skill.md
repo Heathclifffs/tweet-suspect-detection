@@ -44,15 +44,15 @@
 
 ##  Partie 1 — Exploration et prétraitement (15 pts)
 
-- [ ] **1.1** Charger les données avec Pandas
-- [ ] **1.2** Identifier les variables disponibles
-- [ ] **1.3** Vérifier les valeurs manquantes
-- [ ] **1.4** Étudier la distribution des classes
-- [ ] **1.5** Produire des visualisations pertinentes (histogrammes, wordcloud, etc.)
-- [ ] **1.6** Conversion en minuscules
-- [ ] **1.7** Suppression des caractères spéciaux
-- [ ] **1.8** Suppression des URLs
-- [ ] **1.9** Suppression des stop words
+- [ ] **1.1** Charger les données avec Pandas *(dans le notebook EDA)*
+- [ ] **1.2** Identifier les variables disponibles *(dans le notebook EDA)*
+- [ ] **1.3** Vérifier les valeurs manquantes *(dans le notebook EDA)*
+- [ ] **1.4** Étudier la distribution des classes *(dans le notebook EDA)*
+- [ ] **1.5** Produire des visualisations pertinentes *(dans le notebook EDA)*
+- [x] **1.6** Conversion en minuscules (dans `src/preprocessing.py`)
+- [x] **1.7** Suppression des caractères spéciaux (dans `src/preprocessing.py`)
+- [x] **1.8** Suppression des URLs (dans `src/preprocessing.py`)
+- [x] **1.9** Suppression des stop words (dans `src/preprocessing.py`)
 - [ ] **1.10** Lemmatisation ou stemming (optionnel mais recommandé)
 - [ ] **1.11** Documenter les choix de prétraitement
 
@@ -60,14 +60,15 @@
 
 - [x] **2.1** Initialiser Git dans le projet
 - [x] **2.2** Initialiser DVC (`dvc init`)
-- [x] **2.3** Ajouter le dataset à DVC (`dvc add`)
-- [x] **2.4** Configurer un stockage distant (local / Google Drive / S3)
-- [ ] **2.5** Créer un pipeline DVC — étape **prétraitement**
-- [ ] **2.6** Créer un pipeline DVC — étape **entraînement**
-- [ ] **2.7** Créer un pipeline DVC — étape **évaluation**
-- [ ] **2.8** Vérifier la reproductibilité (`dvc repro`)
-- [ ] **2.9** Pousser les fichiers DVC et le code sur GitHub
-- [ ] **2.10** Vérifier que `dvc pull` + `dvc repro` fonctionne depuis un clone frais
+- [x] **2.3** Dataset tracké par Git
+- [x] **2.4** Configurer un stockage distant (local)
+- [x] **2.5** Téléchargement interactif (`src/download.py` avec confirmation)
+- [x] **2.6** Créer un pipeline DVC — étape **prétraitement**
+- [x] **2.7** Créer un pipeline DVC — étape **entraînement**
+- [x] **2.8** Créer un pipeline DVC — étape **évaluation**
+- [x] **2.9** Vérifier la reproductibilité (`dvc repro`)
+- [ ] **2.10** Pousser les fichiers DVC et le code sur GitHub
+- [ ] **2.11** Vérifier que `dvc repro` fonctionne depuis un clone frais
 
 ##  Partie 3 — Représentation des données (15 pts)
 
@@ -78,20 +79,20 @@
 
 ##  Partie 4 — Construction des modèles (20 pts)
 
-- [ ] **4.1** Gérer le déséquilibre des classes (SMOTE / Undersampling / Class Weights)
-- [ ] **4.2** Implémenter **Modèle 1** : Logistic Regression
+- [x] **4.1** Gérer le déséquilibre des classes — `class_weight="balanced"` sur LogisticRegression
+- [x] **4.2** Implémenter **Modèle 1** : Logistic Regression ✅ (dans le pipeline)
 - [ ] **4.3** Implémenter **Modèle 2** : Naive Bayes
 - [ ] **4.4** Implémenter **Modèle 3** : Random Forest (ou SVM / XGBoost / LSTM / BERT)
 - [ ] **4.5** Comparer les performances des 3 modèles
 
 ##  Partie 5 — Entraînement et validation (10 pts)
 
-- [ ] **5.1** Séparer les données en train / test
+- [x] **5.1** Séparer les données en train / test (80/20 stratifié)
 - [ ] **5.2** Utiliser une validation croisée adaptée
-- [ ] **5.3** Calculer Accuracy
-- [ ] **5.4** Calculer Precision
-- [ ] **5.5** Calculer Recall
-- [ ] **5.6** Calculer F1-Score
+- [x] **5.3** Calculer Accuracy
+- [x] **5.4** Calculer Precision
+- [x] **5.5** Calculer Recall
+- [x] **5.6** Calculer F1-Score
 
 ##  Partie 6 — Évaluation et optimisation (10 pts)
 
