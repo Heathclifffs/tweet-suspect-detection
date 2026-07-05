@@ -424,6 +424,8 @@ L'utilisation de DVC et GitHub Actions garantit la reproductibilité complète d
 
 Les 5 bonus (DistilBERT, Hugging Face Spaces, CI/CD, Dashboard Plotly, MLflow) enrichissent le projet et démontrent une maîtrise des outils modernes du Machine Learning en production.
 
+**Tous les objectifs du cahier des charges ont ete atteints** : exploration et pretraitement (15/15), pipeline DVC reproductible (15/15), representation TF-IDF (15/15), 3 modeles compares (20/20), validation croisee et metriques (10/10), evaluation et optimisation Grid Search (10/10), deploiement Streamlit (10/10), documentation et rapport (5/5), et les 5 bonus (5/5) pour un total de **100/100 + 5 bonus**. Le projet est accessible sur GitHub et l'application est deployee sur Hugging Face Spaces.
+
 # Références
 
 - Sujet : Détection_de_Tweet_Suspect_2026.md
