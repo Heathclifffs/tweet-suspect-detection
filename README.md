@@ -34,19 +34,27 @@ tweet-suspect-detection/
 │   └── 02_modeling.ipynb   # Modélisation, comparaison, optimisation
 ├── src/
 │   ├── download.py        # Téléchargement interactif du dataset
-│   ├── preprocessing.py   # Nettoyage du texte
-│   ├── features.py        # Représentation des données
+│   ├── preprocessing.py   # Nettoyage du texte (10 étapes)
 │   ├── models/
-│   │   ├── train.py       # Entraînement du modèle
-│   │   └── evaluate.py    # Évaluation et métriques
+│   │   ├── train.py       # Entraînement LR + NB + RF (pipeline DVC)
+│   │   ├── evaluate.py    # Métriques, matrices confusion, ROC
+│   │   ├── train_bert.py  # Bonus : fine-tuning DistilBERT
+│   │   └── train_with_mlflow.py  # Bonus : tracking MLflow
 │   └── deploy/
-│       ├── streamlit_app.py # Interface Streamlit
+│       ├── streamlit_app.py # Interface Streamlit (4 onglets)
 │       └── api.py           # API FastAPI
-├── models/                 # Modèles sauvegardés (pipeline DVC)
+├── models/                 # Modèles sauvegardés + métriques
+│   ├── metrics.json        # Métriques LR, NB, RF
+│   ├── bert_metrics.json   # Métriques BERT (bonus)
+│   └── *.pkl / *.npy / *.csv  # Modèles, prédictions, matrices
 ├── reports/
 │   ├── figures/            # Visualisations générées
-│   └── rapport.pdf         # Rapport final
-├── dvc.yaml                # Pipeline DVC
+│   ├── rapport.md          # Source du rapport
+│   ├── rapport.pdf         # Rapport final (PDF)
+│   └── rapport.docx        # Rapport final (DOCX)
+├── .github/workflows/
+│   └── ci.yml              # CI/CD : dvc repro automatique
+├── dvc.yaml                # Pipeline DVC reproductible
 ├── dvc.lock                # Verrou DVC
 ├── pyproject.toml          # Dépendances (uv)
 └── uv.lock                 # Lock uv
@@ -194,15 +202,26 @@ Environ 346 tweets vides supprimés sur 60 000.
 
 ## Modèles et résultats
 
+### Approches classiques (TF-IDF + sklearn)
+
+| Modèle | Accuracy | Precision | Recall | F1-Score | CV 5-fold (F1) |
+|--------|----------|-----------|--------|----------|----------------|
+| Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% | 98.31% ± 0.18% |
+| Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% | 96.10% ± 0.10% |
+| Random Forest | 97.54% | 98.16% | 99.12% | 98.64% | 98.52% ± 0.15% |
+
+Représentation : **TF-IDF** (5000 features, unigrams + bigrams).  
+Gestion du déséquilibre : `class_weight="balanced"`.  
+Validation croisée **5-fold** avec stratification.  
+Grid Search : C ∈ {0.01, 0.1, 1, 10, 100} pour LR, n_estimators ∈ {50, 100, 200} / max_depth ∈ {5, 10, 20, None} pour RF.
+
+### Bonus : DistilBERT
+
 | Modèle | Accuracy | Precision | Recall | F1-Score |
 |--------|----------|-----------|--------|----------|
-| Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% |
-| Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% |
-| Random Forest | 97.54% | 98.16% | 99.12% | 98.64% |
-| **DistilBERT** (bonus) | **98.24%** | **98.85%** | **99.19%** | **99.02%** |
+| **DistilBERT** (1 epoch) | **98.24%** | **98.85%** | **99.19%** | **99.02%** |
 
-Représentation : TF-IDF (5000 features).  
-Gestion du déséquilibre : `class_weight="balanced"`.
+Meilleur score global (F1=99.02%), dépasse le Random Forest (98.64%). Intégré à Streamlit comme 4e modèle.
 
 ## API FastAPI
 
@@ -218,24 +237,56 @@ Le rapport final est disponible dans `reports/rapport.pdf`.
 
 ### B.1 — BERT (Transformers)
 
-Un modele **DistilBERT** fine-tune sur le dataset (F1=99.02%, depasse Random Forest 98.64%).  
-**Integre a Streamlit** : apparait comme 4e modele dans Prediction + Dashboard avec matrice de confusion et courbe ROC.
+**DistilBERT** fine-tune sur le dataset avec `transformers` + `torch`.
+
+| Métrique | Valeur | vs Random Forest |
+|----------|--------|------------------|
+| Accuracy | 98.24% | +0.70% |
+| Precision | 98.85% | +0.69% |
+| Recall | 99.19% | +0.07% |
+| **F1-Score** | **99.02%** | **+0.38%** |
+
+**Intégration Streamlit** :
+- **Prediction** : 4e modèle disponible (chargé automatiquement si présent)
+- **Dashboard** : matrice de confusion interactive, courbe ROC (AUC=0.98), métriques comparées aux 3 modèles sklearn
+- **Entraînement** : sauvegarde automatique des prédictions, matrice de confusion et courbe ROC pour le dashboard
 
 ```bash
+# Installation (une fois)
 uv add torch
+
+# Entraînement (~6 min CPU pour 1 epoch)
 uv run python src/models/train_bert.py
-cat models/bert_metrics.json   # Affiche les métriques
+
+# Voir les métriques
+cat models/bert_metrics.json
+
+# Lancer Streamlit (BERT chargé automatiquement)
+uv run streamlit run src/deploy/streamlit_app.py
 ```
 
-### B.5 — MLflow
+### B.5 — MLflow (Tracking des expérimentations)
 
-Tracking des experimentations avec hyperparametres, metriques et artefacts.  
-**Integre a Streamlit** : onglet dedie affichant les dernieres runs et leurs metriques.
+Chaque entrainement est tracké automatiquement par **MLflow** :
+
+| Ce qui est loggé | Détail |
+|-----------------|--------|
+| **Hyperparamètres** | `model_name`, `vectorizer`, + tous les params de `get_params()` (C, n_estimators, max_depth, etc.) |
+| **Métriques** | accuracy, precision, recall, f1_score |
+| **Artéfacts** | Modèle sérialisé (`model_logistic_regression`, etc.) |
+
+**Intégration Streamlit** : onglet dédié affichant la liste des dernières runs avec leurs métriques, bouton pour lancer l'interface web.
 
 ```bash
-rm -rf mlruns                  # Depart propre
+# Lancer le tracking (3 runs : LR, NB, RF)
+rm -rf mlruns                  # Départ propre
 uv run python src/models/train_with_mlflow.py
+
+# Interface web
 uv run mlflow ui               # http://localhost:5000
+
+# Via Streamlit (onglet MLflow)
+uv run streamlit run src/deploy/streamlit_app.py
 ```
 
 ### CI/CD (GitHub Actions)
@@ -253,12 +304,18 @@ Ce depot est compatible avec [Hugging Face Spaces](https://huggingface.co/new-sp
 | Python 3.13 | Langage |
 | uv | Gestionnaire de dépendances |
 | Pandas / NumPy | Manipulation des données |
-| Scikit-learn | Modélisation ML |
-| NLTK | NLP (stop words) |
+| Scikit-learn | Modélisation ML (LR, NB, RF) |
+| Transformers / torch | DistilBERT (bonus B.1) |
+| MLflow | Tracking des expérimentations (bonus B.5) |
+| NLTK | NLP (stop words, lemmatisation) |
 | Matplotlib / Seaborn / WordCloud | Visualisations |
+| Plotly | Graphiques interactifs (dashboard Streamlit) |
 | DVC | Pipeline ML reproductible |
 | Git | Versionnement du code et des données |
-| Streamlit / FastAPI | Déploiement |
+| Streamlit | Interface utilisateur (4 onglets) |
+| FastAPI | API REST |
+| GitHub Actions | CI/CD (bonus B.3) |
+| Hugging Face Spaces | Déploiement cloud (bonus B.2) |
 
 ## Auteur
 
