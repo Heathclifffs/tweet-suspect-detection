@@ -62,7 +62,9 @@ tweet-suspect-detection/
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
 
-## Installation et lancement (etape par etape)
+## Installation et reproduction (etape par etape)
+
+### Pipeline ML classique
 
 ```bash
 # 1. Cloner le dépôt
@@ -86,6 +88,25 @@ uv run streamlit run src/deploy/streamlit_app.py
 
 # 7. (Optionnel) Explorer les notebooks
 uv run jupyter lab
+```
+
+### Bonus — reproduction intégrale
+
+```bash
+# 8. DistilBERT (nécessite torch, ~6 min sur CPU)
+uv add torch
+uv run python src/models/train_bert.py
+
+# 9. MLflow (tracking des expérimentations)
+rm -rf mlruns
+uv run python src/models/train_with_mlflow.py
+uv run mlflow ui            # Interface web sur http://localhost:5000
+
+# 10. CI/CD — automatique à chaque push (GitHub Actions)
+# Voir .github/workflows/ci.yml
+
+# 11. Hugging Face Spaces — déploiement cloud
+# Créer un Space sur huggingface.co/new-space, SDK Streamlit
 ```
 
 ## Application Streamlit
@@ -175,6 +196,7 @@ Environ 346 tweets vides supprimés sur 60 000.
 | Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% |
 | Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% |
 | Random Forest | 97.54% | 98.16% | 99.12% | 98.64% |
+| **DistilBERT** (bonus) | **98.24%** | **98.85%** | **99.19%** | **99.02%** |
 
 Représentation : TF-IDF (5000 features).  
 Gestion du déséquilibre : `class_weight="balanced"`.
@@ -191,22 +213,24 @@ Le rapport final est disponible dans `reports/rapport.pdf`.
 
 ## Bonus
 
-### BERT (Transformers)
+### B.1 — BERT (Transformers)
 
-Un modele **DistilBERT** est disponible dans `src/models/train_bert.py` pour une approche plus avancee que TF-IDF. Necessite PyTorch :
+Un modele **DistilBERT** fine-tune sur le dataset (F1=99.02%, depasse Random Forest 98.64%) :
 
 ```bash
 uv add torch
 uv run python src/models/train_bert.py
+cat models/bert_metrics.json   # Affiche les métriques
 ```
 
-### MLflow
+### B.5 — MLflow
 
-Le tracking des experimentations avec **MLflow** est integre dans `src/models/train_with_mlflow.py` :
+Tracking des experimentations avec hyperparametres, metriques et artefacts :
 
 ```bash
+rm -rf mlruns                  # Depart propre
 uv run python src/models/train_with_mlflow.py
-uv run mlflow ui
+uv run mlflow ui               # http://localhost:5000
 ```
 
 ### CI/CD (GitHub Actions)

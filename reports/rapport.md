@@ -80,8 +80,9 @@ La classe suspect est sous-représentée. La stratégie `class_weight="balanced"
 | Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% |
 | Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% |
 | Random Forest | 97.54% | 98.16% | 99.12% | 98.64% |
+| **DistilBERT** (bonus) | **98.24%** | **98.85%** | **99.19%** | **99.02%** |
 
-Le **Random Forest** obtient les meilleures performances globales avec un F1-Score de **98.64%**.
+Le **Random Forest** obtient les meilleures performances globales parmi les approches classiques avec un F1-Score de **98.64%**. Le **DistilBERT**, entraîné sur une seule époque, atteint **99.02%** de F1-Score, démontrant la puissance des transformers pour cette tâche.
 
 ## Matrices de confusion
 
@@ -107,31 +108,54 @@ Le pipeline reproductible se compose de 3 étapes :
 uv run dvc repro
 ```
 
-1. **preprocess** : nettoyage du texte
-2. **train** : entraînement des 3 modèles avec TF-IDF
-3. **evaluate** : calcul des métriques et génération des graphiques
+1. **preprocess** : nettoyage du texte (`src/preprocessing.py`)
+2. **train** : entraînement des 3 modèles avec TF-IDF (`src/models/train.py`)
+3. **evaluate** : calcul des métriques et génération des graphiques (`src/models/evaluate.py`)
 
-### Commandes essentielles
+Le dataset est téléchargeable via `uv run python src/download.py` (téléchargement interactif depuis Google Drive).
+
+### Commandes essentielles DVC
 
 ```bash
-uv run dvc repro          # Exécuter le pipeline
-uv run dvc status         # Vérifier l'état
-uv run dvc checkout       # Restaurer depuis le cache
-uv run dvc pull           # Récupérer depuis le remote
-uv run dvc push           # Pousser vers le remote
+uv run dvc repro          # Exécuter le pipeline complet
+uv run dvc status         # Vérifier l'état (étapes modifiées)
+uv run dvc checkout       # Restaurer depuis le cache DVC
+uv run dvc pull           # Récupérer depuis le cache distant
+uv run dvc push           # Pousser vers le cache distant
 ```
 
-### Reproductibilité complète
+### Reproduction intégrale (core + bonus)
+
+```bash
+# 1. Pipeline classique (preprocess → train → evaluate)
+uv run dvc repro
+
+# 2. Bonus — DistilBERT (nécessite torch)
+uv add torch
+uv run python src/models/train_bert.py
+
+# 3. Bonus — MLflow (tracking des expérimentations)
+uv run python src/models/train_with_mlflow.py
+uv run mlflow ui          # Interface web MLflow
+
+# 4. Bonus — CI/CD
+# Automatique : .github/workflows/ci.yml s'exécute à chaque push
+
+# 5. Bonus — Hugging Face Spaces
+# Créer un Space sur huggingface.co/new-space, lier ce dépôt
+```
+
+### Reproductibilité complète (depuis un clone frais)
 
 ```bash
 git clone <repo-url>
 cd tweet-suspect-detection
 uv sync
-uv run dvc pull
-uv run dvc repro
+uv run dvc pull           # Récupère les données du cache distant
+uv run dvc repro           # Reproduit le pipeline complet
+cat models/metrics.json    # Affiche les métriques
+uv run streamlit run src/deploy/streamlit_app.py   # Interface
 ```
-
-Le dataset est téléchargeable via `uv run python src/download.py` (téléchargement interactif depuis Google Drive).
 
 # Optimisation
 
@@ -201,12 +225,52 @@ uv run uvicorn src.deploy.api:app --reload
 
 ## Travail realise (Bonus)
 
-En complément du cahier des charges initial, les fonctionnalités bonus suivantes ont été implémentées :
+En complément du cahier des charges initial, 4 fonctionnalités bonus ont été implémentées avec succès :
 
-- **Modele BERT** : script d'entraînement `src/models/train_bert.py` utilisant DistilBERT
-- **MLflow** : tracking des expérimentations avec `src/models/train_with_mlflow.py`
-- **CI/CD** : workflow GitHub Actions pour exécuter `dvc repro` automatiquement
-- **Hugging Face Spaces** : configuration YAML intégrée au README pour un déploiement cloud en un clic
+### B.1 — DistilBERT (Transformers)
+
+Un script d'entraînement `src/models/train_bert.py` fine-tune **DistilBERT** sur le dataset de tweets. Résultats après 1 époque (sur CPU, ~6 min) :
+
+| Métrique | Valeur |
+|----------|--------|
+| Accuracy | 98.24% |
+| Precision | 98.85% |
+| Recall | 99.19% |
+| **F1-Score** | **99.02%** |
+
+Le modèle dépasse le Random Forest (98.64% F1) malgré une seule époque d'entraînement, confirmant l'apport des transformers pour la compréhension contextuelle du langage. L'entraînement complet sur 3 époques (recommandé) nécessite ~18 min.
+
+```bash
+uv add torch
+uv run python src/models/train_bert.py
+```
+
+### B.5 — MLflow (Tracking des expérimentations)
+
+Le script `src/models/train_with_mlflow.py` enregistre automatiquement pour chaque modèle :
+- Les **hyperparamètres** (via `get_params()`)
+- Les **métriques** (accuracy, precision, recall, F1)
+- Les **artefacts** (modèles sérialisés)
+
+```bash
+rm -rf mlruns                    # Départ propre
+uv run python src/models/train_with_mlflow.py
+uv run mlflow ui                 # http://localhost:5000
+```
+
+L'interface MLflow permet de comparer visuellement les performances des 3 modèles et d'exporter les résultats.
+
+### B.3 — CI/CD (GitHub Actions)
+
+Le workflow `.github/workflows/ci.yml` s'exécute automatiquement à chaque push sur `main` et reproduit l'intégralité du pipeline DVC, garantissant que les modifications ne cassent pas la pipeline.
+
+### B.2 — Hugging Face Spaces
+
+Les métadonnées YAML intégrées au `README.md` permettent un déploiement cloud en un clic :
+1. Aller sur [huggingface.co/new-space](https://huggingface.co/new-space)
+2. Sélectionner **Streamlit** comme SDK
+3. Lier ce dépôt GitHub
+4. Le Space détecte automatiquement la configuration et déploie l'application
 
 ## Perspectives d'amélioration
 
