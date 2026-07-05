@@ -1,6 +1,5 @@
 ---
 title: Detection de Tweets Suspects
-emoji: 🕵️
 colorFrom: red
 colorTo: blue
 sdk: streamlit
