@@ -12,7 +12,7 @@ Classification automatique de tweets suspects (haineux, offensants, trompeurs) a
 
 Application en ligne sur Hugging Face Spaces :
 
-➡️  **https://huggingface.co/spaces/yipene/tweet-suspect-detection**
+**https://huggingface.co/spaces/yipene/tweet-suspect-detection**
 
 Deploiement automatise :
 
