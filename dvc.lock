@@ -76,3 +76,30 @@ stages:
       hash: md5
       md5: 42c998affbf14ae1f099ee16e4149d35
       size: 86287
+  track_mlflow:
+    cmd: uv run python src/models/track_mlflow.py
+    deps:
+    - path: models/logistic_regression.pkl
+      hash: md5
+      md5: 2dc4874f58ff2b6586933051114df655
+      size: 40863
+    - path: models/metrics.json
+      hash: md5
+      md5: 54e7de11fe7b21d22aded838c147b637
+      size: 365
+    - path: models/naive_bayes.pkl
+      hash: md5
+      md5: fdf4aa350ba937428082ddf91c6b0c35
+      size: 160791
+    - path: models/random_forest.pkl
+      hash: md5
+      md5: e39914fcc72aa62518ff007ae305ba3d
+      size: 84119497
+    - path: models/vectorizer.pkl
+      hash: md5
+      md5: a5d1a0b622eba8d7517efe25ed4834bc
+      size: 179371
+    - path: src/models/track_mlflow.py
+      hash: md5
+      md5: 260f9ae6c315419898049d35376184de
+      size: 1023

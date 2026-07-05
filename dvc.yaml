@@ -31,3 +31,13 @@ stages:
     metrics:
       - models/metrics.json:
           cache: false
+
+  track_mlflow:
+    cmd: uv run python src/models/track_mlflow.py
+    deps:
+      - models/metrics.json
+      - models/logistic_regression.pkl
+      - models/naive_bayes.pkl
+      - models/random_forest.pkl
+      - models/vectorizer.pkl
+      - src/models/track_mlflow.py
