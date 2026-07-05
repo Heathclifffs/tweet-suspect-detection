@@ -94,10 +94,12 @@ uv run jupyter lab
 
 ```bash
 # 8. DistilBERT (nécessite torch, ~6 min sur CPU)
+#    Le modèle sera automatiquement chargé par Streamlit
 uv add torch
 uv run python src/models/train_bert.py
 
 # 9. MLflow (tracking des expérimentations)
+#    L'onglet MLflow dans Streamlit affiche les runs automatiquement
 rm -rf mlruns
 uv run python src/models/train_with_mlflow.py
 uv run mlflow ui            # Interface web sur http://localhost:5000
@@ -111,12 +113,13 @@ uv run mlflow ui            # Interface web sur http://localhost:5000
 
 ## Application Streamlit
 
-L'interface propose 3 onglets :
+L'interface propose 4 onglets :
 
 | Onglet | Description |
 |--------|-------------|
-| **Prediction** | Saisir un tweet ou tester un exemple. Resultats des 3 modeles (prediction + confiance). |
-| **Tableau de bord** | Selecteur de modele, matrice de confusion interactive, courbes ROC, comparaison des performances, feature importance (plotly dynamique). |
+| **Prediction** | Saisir un tweet ou tester un exemple. Resultats des **4 modeles** (LR, NB, RF, BERT) avec confiance. |
+| **Tableau de bord** | Selecteur de modele (dont BERT), matrice de confusion interactive, courbes ROC, comparaison des performances, feature importance (Plotly dynamique). |
+| **MLflow** | Affichage des dernieres runs MLflow, lancement de l'interface web. |
 | **Historique** | Toutes les analyses de la session avec horodatage. |
 
 ```bash
@@ -215,7 +218,8 @@ Le rapport final est disponible dans `reports/rapport.pdf`.
 
 ### B.1 — BERT (Transformers)
 
-Un modele **DistilBERT** fine-tune sur le dataset (F1=99.02%, depasse Random Forest 98.64%) :
+Un modele **DistilBERT** fine-tune sur le dataset (F1=99.02%, depasse Random Forest 98.64%).  
+**Integre a Streamlit** : apparait comme 4e modele dans Prediction + Dashboard avec matrice de confusion et courbe ROC.
 
 ```bash
 uv add torch
@@ -225,7 +229,8 @@ cat models/bert_metrics.json   # Affiche les métriques
 
 ### B.5 — MLflow
 
-Tracking des experimentations avec hyperparametres, metriques et artefacts :
+Tracking des experimentations avec hyperparametres, metriques et artefacts.  
+**Integre a Streamlit** : onglet dedie affichant les dernieres runs et leurs metriques.
 
 ```bash
 rm -rf mlruns                  # Depart propre

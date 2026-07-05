@@ -46,3 +46,6 @@ mlruns/
 models/bert_checkpoints/
 models/bert_logs/
 models/bert_model/
+models/bert_predictions.csv
+models/bert_roc.npz
+models/bert_confusion_matrix.npy

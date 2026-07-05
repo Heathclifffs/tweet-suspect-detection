@@ -6,6 +6,7 @@ import sys
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from pathlib import Path
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from preprocessing import clean_text
@@ -18,32 +19,92 @@ MODEL_DIR = "models"
 REPORT_DIR = "reports/figures"
 METRICS_PATH = "models/metrics.json"
 PREDICTIONS_PATH = "models/test_predictions.csv"
+BERT_METRICS_PATH = "models/bert_metrics.json"
+BERT_PREDS_PATH = "models/bert_predictions.csv"
+BERT_CM_PATH = "models/bert_confusion_matrix.npy"
+BERT_ROC_PATH = "models/bert_roc.npz"
 
-MODELS = {
+SKLEARN_MODELS = {
     "Logistic Regression": "logistic_regression.pkl",
     "Naive Bayes": "naive_bayes.pkl",
     "Random Forest": "random_forest.pkl",
 }
+
+BERT_AVAILABLE = False
+bert_tokenizer = None
+bert_model = None
+
+
+@st.cache_resource
+def load_bert():
+    global BERT_AVAILABLE, bert_tokenizer, bert_model
+    try:
+        from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        import torch
+        bert_path = f"{MODEL_DIR}/bert_model"
+        if os.path.isdir(bert_path):
+            bert_tokenizer = AutoTokenizer.from_pretrained(bert_path)
+            bert_model = AutoModelForSequenceClassification.from_pretrained(bert_path)
+            BERT_AVAILABLE = True
+            return True
+    except Exception:
+        pass
+    return False
 
 
 @st.cache_resource
 def load_models():
     vectorizer = joblib.load(f"{MODEL_DIR}/vectorizer.pkl")
     models = {}
-    for name, filename in MODELS.items():
+    for name, filename in SKLEARN_MODELS.items():
         models[name] = joblib.load(f"{MODEL_DIR}/{filename}")
     return vectorizer, models
 
 
 @st.cache_data
 def load_metrics():
+    all_m = {}
     with open(METRICS_PATH) as f:
-        return json.load(f)
+        all_m.update(json.load(f))
+    if os.path.exists(BERT_METRICS_PATH):
+        with open(BERT_METRICS_PATH) as f:
+            bm = json.load(f)
+        all_m["bert"] = {
+            "accuracy": bm["eval_accuracy"],
+            "precision": bm["eval_precision"],
+            "recall": bm["eval_recall"],
+            "f1_score": bm["eval_f1_score"],
+        }
+    return all_m
 
 
 @st.cache_data
 def load_predictions():
-    return pd.read_csv(PREDICTIONS_PATH)
+    dfs = [pd.read_csv(PREDICTIONS_PATH)]
+    if os.path.exists(BERT_PREDS_PATH):
+        dfs.append(pd.read_csv(BERT_PREDS_PATH))
+    return pd.concat(dfs, ignore_index=True)
+
+
+def predict_bert(tweet_text):
+    global bert_tokenizer, bert_model
+    if not BERT_AVAILABLE:
+        return None
+    import torch
+    cleaned = clean_text(tweet_text)
+    if not cleaned:
+        return None
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    bert_model.to(device)
+    bert_model.eval()
+    tokens = bert_tokenizer([cleaned], padding=True, truncation=True, max_length=128, return_tensors="pt")
+    tokens = {k: v.to(device) for k, v in tokens.items()}
+    with torch.no_grad():
+        logits = bert_model(**tokens).logits
+        probs = torch.softmax(logits, dim=-1)
+        pred = torch.argmax(logits, dim=-1).item()
+    label = "SUSPECT" if pred == 0 else "NON SUSPECT"
+    return {"modele": "BERT (DistilBERT)", "prediction": label, "confiance": round(float(probs[0][pred]) * 100, 1)}
 
 
 def predict_tweet(tweet_text, vectorizer, models):
@@ -61,10 +122,13 @@ def predict_tweet(tweet_text, vectorizer, models):
             "prediction": label,
             "confiance": round(proba[pred] * 100, 1),
         })
+    bert_res = predict_bert(tweet_text)
+    if bert_res:
+        results.append(bert_res)
     return cleaned, results
 
 
-def plot_confusion_matrix(cm, model_name):
+def plot_confusion_matrix(cm, model_display_name):
     fig = px.imshow(
         cm,
         x=["Non suspect", "Suspect"],
@@ -72,7 +136,7 @@ def plot_confusion_matrix(cm, model_name):
         text_auto=True,
         color_continuous_scale="Blues",
         labels={"x": "Prediction", "y": "Reel"},
-        title=f"Matrice de confusion - {model_name}",
+        title=f"Matrice de confusion - {model_display_name}",
     )
     fig.update_layout(
         width=400, height=400,
@@ -84,15 +148,21 @@ def plot_confusion_matrix(cm, model_name):
 
 def plot_roc_curves(df):
     fig = go.Figure()
-    colors = {"logistic_regression": "blue", "naive_bayes": "green", "random_forest": "red"}
-    for model_name in df["model"].unique():
+    color_map = {
+        "logistic_regression": "blue",
+        "naive_bayes": "green",
+        "random_forest": "red",
+        "bert": "purple",
+    }
+    for model_name in sorted(df["model"].unique()):
         subset = df[df["model"] == model_name]
         fpr, tpr, _ = roc_curve(subset["y_true"], subset["y_proba"])
         roc_auc = auc(fpr, tpr)
+        label = model_name.replace("_", " ").title()
         fig.add_trace(go.Scatter(
             x=fpr, y=tpr, mode="lines",
-            name=f"{model_name.replace('_', ' ').title()} (AUC={roc_auc:.4f})",
-            line=dict(color=colors.get(model_name, "gray"), width=2),
+            name=f"{label} (AUC={roc_auc:.4f})",
+            line=dict(color=color_map.get(model_name, "gray"), width=2),
         ))
     fig.add_trace(go.Scatter(
         x=[0, 1], y=[0, 1], mode="lines",
@@ -147,9 +217,10 @@ def plot_feature_importance(vectorizer, model, model_name, top_n=20):
     return fig
 
 
+load_bert()
+
 if "history" not in st.session_state:
     st.session_state.history = []
-
 
 st.set_page_config(
     page_title="Detection de Tweets Suspects",
@@ -167,12 +238,17 @@ st.warning(
 
 vectorizer, models = load_models()
 
-tab1, tab2, tab3 = st.tabs(["Prediction", "Tableau de bord", "Historique"])
+tab1, tab2, tab3, tab4 = st.tabs(["Prediction", "Tableau de bord", "MLflow", "Historique"])
 
 with tab1:
     st.markdown(
         "Saisissez un tweet ci-dessous pour savoir s'il est **suspect** ou **non suspect**."
     )
+
+    if BERT_AVAILABLE:
+        st.info("Modele BERT (DistilBERT) charge — 4 modeles disponibles.")
+    else:
+        st.caption("3 modeles sklearn disponibles. Pour ajouter BERT, entrainez d'abord `uv run python src/models/train_bert.py`.")
 
     tweet = st.text_area(
         "Votre tweet",
@@ -180,7 +256,7 @@ with tab1:
         height=120,
     )
 
-    if st.button("Analyser", type="primary", width="stretch"):
+    if st.button("Analyser", type="primary"):
         if not tweet.strip():
             st.warning("Veuillez saisir un tweet.")
         else:
@@ -202,9 +278,6 @@ with tab1:
                     col2.metric("Confiance", f"{r['confiance']}%")
                     st.progress(int(r["confiance"]))
                     st.markdown("---")
-
-    else:
-        st.info("Entrez un tweet et cliquez sur Analyser.")
 
     st.markdown("---")
     st.markdown("### Exemples de tweets a tester")
@@ -233,11 +306,13 @@ with tab2:
 
     metrics = load_metrics()
     df_preds = load_predictions()
-    model_list = list(metrics.keys())
+
+    model_keys = list(metrics.keys())
+    bert_loaded = "bert" in model_keys
 
     selected = st.selectbox(
-        "Modele", model_list,
-        format_func=lambda x: x.replace("_", " ").title(),
+        "Modele", model_keys,
+        format_func=lambda x: "BERT (DistilBERT)" if x == "bert" else x.replace("_", " ").title(),
     )
 
     col_metrics, _ = st.columns([1, 2])
@@ -249,26 +324,89 @@ with tab2:
 
     col1, col2 = st.columns(2)
     with col1:
-        subset = df_preds[df_preds["model"] == selected]
-        cm = confusion_matrix(subset["y_true"], subset["y_pred"])
-        st.plotly_chart(plot_confusion_matrix(cm, selected.replace("_", " ").title()), width="stretch")
+        if selected == "bert" and os.path.exists(BERT_CM_PATH):
+            cm = np.load(BERT_CM_PATH)
+            st.plotly_chart(plot_confusion_matrix(cm, "BERT (DistilBERT)"), key="bert_cm")
+        elif selected != "bert":
+            subset = df_preds[df_preds["model"] == selected]
+            cm = confusion_matrix(subset["y_true"], subset["y_pred"])
+            st.plotly_chart(plot_confusion_matrix(cm, selected.replace("_", " ").title()))
+        else:
+            st.info("Matrice de confusion non disponible pour BERT.")
     with col2:
-        st.plotly_chart(plot_roc_curves(df_preds), width="stretch")
+        st.plotly_chart(plot_roc_curves(df_preds))
 
-    st.plotly_chart(plot_metrics_comparison(metrics), width="stretch")
+    st.plotly_chart(plot_metrics_comparison(metrics))
 
-    model_obj = models.get(selected.replace("_", " ").title())
-    if model_obj and selected != "naive_bayes":
-        fig_fi = plot_feature_importance(vectorizer, model_obj, selected.replace("_", " ").title())
-        if fig_fi:
-            st.plotly_chart(fig_fi, width="stretch")
+    if selected != "bert" and selected != "naive_bayes":
+        model_obj = models.get(selected.replace("_", " ").title())
+        if model_obj:
+            fig_fi = plot_feature_importance(vectorizer, model_obj, selected.replace("_", " ").title())
+            if fig_fi:
+                st.plotly_chart(fig_fi)
+    elif selected == "bert":
+        st.caption("Feature importance non disponible pour BERT (boite noire).")
 
     learning_curve_path = f"{REPORT_DIR}/learning_curve.png"
     if os.path.exists(learning_curve_path):
         st.subheader("Courbe d'apprentissage")
-        st.image(learning_curve_path, width="stretch")
+        st.image(learning_curve_path)
 
 with tab3:
+    st.header("MLflow - Tracking des experimentations")
+
+    st.markdown("""
+    **MLflow** enregistre automatiquement les hyperparametres, metriques et
+    artefacts de chaque entrainement.
+    """)
+
+    mlruns_path = os.path.join(os.getcwd(), "mlruns")
+    if os.path.isdir(mlruns_path) and any(Path(mlruns_path).iterdir()):
+        st.success("Des experimentations MLflow sont disponibles localement.")
+
+        if st.button("Lancer MLflow UI"):
+            st.markdown("```bash\nuv run mlflow ui\n```")
+            st.markdown("Ouvrir [http://localhost:5000](http://localhost:5000)")
+
+        try:
+            import mlflow
+            from mlflow.tracking import MlflowClient
+            client = MlflowClient()
+            experiment = client.get_experiment_by_name("tweet_suspect_detection")
+            if experiment and experiment.experiment_id:
+                runs = client.search_runs(experiment_ids=[experiment.experiment_id])
+                if runs:
+                    run_data = []
+                    for r in runs:
+                        run_data.append({
+                            "run_id": r.info.run_id[:8],
+                            "modele": r.data.params.get("model_name", "?"),
+                            "accuracy": f"{float(r.data.metrics.get('accuracy', 0)):.2%}",
+                            "f1_score": f"{float(r.data.metrics.get('f1_score', 0)):.2%}",
+                            "status": r.info.status,
+                        })
+                    st.subheader(f"Dernieres runs ({len(runs)})")
+                    st.dataframe(run_data, use_container_width=True)
+                else:
+                    st.info("Aucune run trouvee.")
+        except Exception as e:
+            st.caption(f"MLflow non accessible : {e}")
+    else:
+        st.info(
+            "Aucune experimentation MLflow trouvee. "
+            "Lancez `uv run python src/models/train_with_mlflow.py` puis `uv run mlflow ui`."
+        )
+
+    st.markdown("---")
+    st.markdown("### Commandes MLflow")
+    st.code("""# Lancer le tracking
+rm -rf mlruns
+uv run python src/models/train_with_mlflow.py
+
+# Interface web
+uv run mlflow ui""")
+
+with tab4:
     st.header("Historique des analyses")
 
     if not st.session_state.history:
@@ -279,7 +417,8 @@ with tab3:
             st.rerun()
 
         for i, entry in enumerate(reversed(st.session_state.history)):
-            with st.expander(f"#{len(st.session_state.history) - i} - {entry['timestamp']} - \"{entry['tweet'][:60]}{'...' if len(entry['tweet']) > 60 else ''}\""):
+            label = f"#{len(st.session_state.history) - i} - {entry['timestamp']} - \"{entry['tweet'][:60]}{'...' if len(entry['tweet']) > 60 else ''}\""
+            with st.expander(label):
                 st.markdown(f"**Tweet original :** {entry['tweet']}")
                 st.markdown(f"**Tweet nettoye :** {entry['cleaned']}")
                 st.markdown("**Resultats :**")

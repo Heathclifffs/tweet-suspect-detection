@@ -3,7 +3,7 @@ import joblib
 import os
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc as sk_auc
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datasets import Dataset
 import torch
@@ -81,6 +81,25 @@ def train_bert(input_path: str, model_dir: str):
     with open(f"{model_dir}/bert_metrics.json", "w") as f:
         import json
         json.dump(metrics, f, indent=2)
+
+    test_preds = trainer.predict(test_dataset)
+    y_pred = np.argmax(test_preds.predictions, axis=-1)
+    y_proba = torch.softmax(torch.tensor(test_preds.predictions), dim=-1)[:, 1].numpy()
+
+    pred_df = pd.DataFrame({
+        "y_true": test_preds.label_ids,
+        "y_pred": y_pred,
+        "y_proba": y_proba,
+        "model": "bert",
+    })
+    pred_df.to_csv(f"{model_dir}/bert_predictions.csv", index=False)
+
+    cm = confusion_matrix(test_preds.label_ids, y_pred)
+    np.save(f"{model_dir}/bert_confusion_matrix.npy", cm)
+
+    fpr, tpr, _ = roc_curve(test_preds.label_ids, y_proba)
+    roc_auc_val = sk_auc(fpr, tpr)
+    np.savez(f"{model_dir}/bert_roc.npz", fpr=fpr, tpr=tpr, auc=roc_auc_val)
 
     print(f"Modele BERT entraine et sauvegarde dans {model_dir}/bert_model")
     print(f"Metrics: {metrics}")

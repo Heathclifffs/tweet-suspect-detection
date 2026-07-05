@@ -168,29 +168,37 @@ Les résultats détaillés sont visibles dans `notebooks/02_modeling.ipynb`.
 
 # Déploiement
 
-L'application **Streamlit** est déployée localement et propose 3 onglets avec une interface interactive :
+L'application **Streamlit** est déployée localement et propose **4 onglets** avec une interface interactive :
 
-### Prediction
+### 1. Prediction
 
-Saisie d'un tweet et classification par les 3 modèles (Logistic Regression, Naive Bayes, Random Forest) avec score de confiance affiché sous forme de barre de progression. L'application affiche également un avertissement sur les limites du modèle (non-détection du harcèlement et du discours haineux). Des exemples prédéfinis permettent de tester rapidement l'application.
+Saisie d'un tweet et classification par les **4 modèles** (Logistic Regression, Naive Bayes, Random Forest, BERT DistilBERT) avec score de confiance affiché sous forme de barre de progression. BERT est chargé automatiquement s'il a été préalablement entraîné. L'application affiche également un avertissement sur les limites du modèle (non-détection du harcèlement et du discours haineux). Des exemples prédéfinis permettent de tester rapidement l'application.
 
 ![Interface Streamlit](figures/streamlit_app.png)
 ![Prédiction Streamlit](figures/streamlit_prediction.png)
 
-### Tableau de bord dynamique
+### 2. Tableau de bord dynamique
 
 Tableau de bord interactif généré avec **Plotly** permettant de :
-- Sélectionner un modèle parmi les 3 via un menu déroulant
-- Visualiser la matrice de confusion interactive (couleurs, survol)
-- Afficher les courbes ROC des 3 modèles superposées avec l'AUC
+- Sélectionner un modèle parmi **les 4** (dont BERT) via un menu déroulant
+- Visualiser la matrice de confusion interactive (couleurs, survol) — BERT inclus
+- Afficher les courbes ROC des 4 modèles superposées avec l'AUC
 - Comparer les performances (accuracy, precision, recall, F1) sous forme de barres groupées
 - Explorer l'importance des features (coefficients de la régression logistique ou importance de Gini pour Random Forest)
 
 ![Tableau de bord dynamique](figures/streamlit_dashboard.png)
 
-### Historique
+### 3. MLflow
 
-Toutes les analyses effectuées pendant la session sont conservées avec horodatage, tweet original, tweet nettoyé et résultats détaillés par modèle. L'historique peut être vidé manuellement.
+Onglet dédié au tracking des expérimentations **MLflow** :
+- Détection automatique des runs MLflow dans `mlruns/`
+- Affichage des dernières runs avec leurs métriques (accuracy, F1)
+- Bouton pour lancer l'interface web MLflow
+- Rappel des commandes essentielles
+
+### 4. Historique
+
+Toutes les analyses effectuées pendant la session sont conservées avec horodatage, tweet original, tweet nettoyé et résultats détaillés par modèle (incluant BERT). L'historique peut être vidé manuellement.
 
 ![Historique des analyses](figures/streamlit_history.png)
 
@@ -240,9 +248,12 @@ Un script d'entraînement `src/models/train_bert.py` fine-tune **DistilBERT** su
 
 Le modèle dépasse le Random Forest (98.64% F1) malgré une seule époque d'entraînement, confirmant l'apport des transformers pour la compréhension contextuelle du langage. L'entraînement complet sur 3 époques (recommandé) nécessite ~18 min.
 
+**Intégration Streamlit** : BERT est automatiquement chargé par l'application et apparaît comme 4ᵉ modèle dans l'onglet Prediction, avec sa matrice de confusion et sa courbe ROC dans le Tableau de bord.
+
 ```bash
 uv add torch
 uv run python src/models/train_bert.py
+uv run streamlit run src/deploy/streamlit_app.py   # BERT charge automatiquement
 ```
 
 ### B.5 — MLflow (Tracking des expérimentations)
@@ -251,6 +262,8 @@ Le script `src/models/train_with_mlflow.py` enregistre automatiquement pour chaq
 - Les **hyperparamètres** (via `get_params()`)
 - Les **métriques** (accuracy, precision, recall, F1)
 - Les **artefacts** (modèles sérialisés)
+
+**Intégration Streamlit** : l'onglet MLflow dans l'application affiche les dernières runs, leurs métriques, et propose de lancer l'interface web MLflow.
 
 ```bash
 rm -rf mlruns                    # Départ propre
