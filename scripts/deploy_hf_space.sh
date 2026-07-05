@@ -18,7 +18,7 @@ else
     hf auth login
 fi
 
-USER=$(hf auth whoami)
+USER=$(hf auth whoami 2>/dev/null | tail -1)
 echo "  -> $USER"
 
 echo "[3/4] Creation du Space..."
@@ -26,7 +26,11 @@ hf repos create "$REPO" --type space --space-sdk docker --exist-ok
 
 echo "[4/4] Push du code..."
 git remote remove "$REMOTE_NAME" 2>/dev/null || true
-git remote add "$REMOTE_NAME" "https://huggingface.co/spaces/$USER/$REPO"
+if [ -n "${HF_TOKEN:-}" ]; then
+    git remote add "$REMOTE_NAME" "https://$USER:$HF_TOKEN@huggingface.co/spaces/$USER/$REPO"
+else
+    git remote add "$REMOTE_NAME" "https://huggingface.co/spaces/$USER/$REPO"
+fi
 git push "$REMOTE_NAME" HEAD:main --force
 
 echo ""
