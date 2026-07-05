@@ -12,7 +12,7 @@
 | | Lien |
 |---|---|
 | **App Streamlit** (Hugging Face Spaces) | https://huggingface.co/spaces/yipene/tweet-suspect-detection |
-| **Modèle DistilBERT** (Hugging Face Hub) | *(à définir — voir secrets GitHub `HF_REPO_ID`)* |
+| **Modèle DistilBERT** (Hugging Face Hub) | *(à créer via le GitHub Action `.github/workflows/deploy-hf.yml`)* |
 
 ## Rapports
 
