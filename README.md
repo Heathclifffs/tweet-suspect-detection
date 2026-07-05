@@ -190,7 +190,13 @@ Le rapport final est disponible dans `reports/rapport.pdf`.
 | Git | Versionnement du code et des données |
 | Streamlit / FastAPI | Déploiement |
 
-## Auteurs
+## Auteur
 
-Projet réalisé dans le cadre du M2 FD&IA — *Construction de Modèles et Déploiement*.
+**Yipene Harold Ezekiel BASSOLE** — M2 FD&IA
+
+Projet réalisé dans le cadre du *Construction de Modèles et Déploiement*.
+
+## Lien
+
+[https://github.com/Heathclifffs/tweet-suspect-detection](https://github.com/Heathclifffs/tweet-suspect-detection)
 # tweet-suspect-detection

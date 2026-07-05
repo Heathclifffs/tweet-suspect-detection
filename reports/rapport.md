@@ -1,7 +1,7 @@
 ---
 title: "Détection de Tweets Suspects"
 subtitle: "Projet : Construction de Modèles et Déploiement"
-author: "M2 FD&IA"
+author: "Yipene Harold Ezekiel BASSOLE"
 date: "Juin 2026"
 geometry: margin=2.5cm
 toc: true
@@ -216,5 +216,5 @@ Ce projet a permis de mettre en œuvre un pipeline complet de Machine Learning p
 # Références
 
 - Sujet : Détection_de_Tweet_Suspect_2026.md
-- Code source : https://github.com/... (à compléter)
-- Dataset : Google Drive
+- Code source : https://github.com/Heathclifffs/tweet-suspect-detection
+- Dataset : Google Drive (ID: 1US0luOWPOeVPpUQnpyxr41zrBmeg4Gjk)
