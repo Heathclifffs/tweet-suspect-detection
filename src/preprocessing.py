@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import re
 import nltk
@@ -61,6 +62,7 @@ def clean_text(text: str) -> str:
 
 
 def preprocess(input_path: str, output_path: str):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df = pd.read_csv(input_path)
     df["clean_message"] = df["message"].fillna("").apply(clean_text)
     df = df[df["clean_message"] != ""].reset_index(drop=True)
