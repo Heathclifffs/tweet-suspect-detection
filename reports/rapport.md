@@ -373,11 +373,15 @@ Le workflow `.github/workflows/ci.yml` s'exécute automatiquement à chaque push
 
 ### B.2 — Hugging Face Spaces
 
-Les métadonnées YAML intégrées au `README.md` permettent un déploiement cloud en un clic :
-1. Aller sur [huggingface.co/new-space](https://huggingface.co/new-space)
-2. Sélectionner **Streamlit** comme SDK
-3. Lier ce dépôt GitHub
-4. Le Space détecte automatiquement la configuration et déploie l'application
+L'application est déployée en ligne :
+
+https://huggingface.co/spaces/yipene/tweet-suspect-detection
+
+Le déploiement est automatisé via `scripts/deploy_hf_space.sh` qui utilise le SDK Docker (Streamlit n'étant plus supporté nativement par HF Spaces). Le script gère la création du Space et l'upload des fichiers :
+
+```bash
+uv run bash scripts/deploy_hf_space.sh
+```
 
 # Perspectives d'amélioration
 
@@ -418,7 +422,7 @@ Les résultats obtenus (F1 > 98% pour les approches classiques, 99.02% pour Dist
 
 L'utilisation de DVC et GitHub Actions garantit la reproductibilité complète du pipeline, et l'application Streamlit déployée permet une utilisation interactive avec 4 onglets couvrant la prédiction, le dashboard, le tracking MLflow et l'historique.
 
-Les 4 bonus (DistilBERT, MLflow, CI/CD, Hugging Face Spaces) enrichissent le projet et démontrent une maîtrise des outils modernes du Machine Learning en production.
+Les 5 bonus (DistilBERT, Hugging Face Spaces, CI/CD, Dashboard Plotly, MLflow) enrichissent le projet et démontrent une maîtrise des outils modernes du Machine Learning en production.
 
 # Références
 
