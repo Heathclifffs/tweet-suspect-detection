@@ -5,6 +5,8 @@ author: "Yipene Harold Ezekiel BASSOLE"
 date: "Juin 2026"
 geometry: margin=2.5cm
 toc: true
+toc-depth: 3
+numbersections: true
 lang: fr
 ---
 
@@ -82,6 +84,8 @@ La classe suspect (0) représente ~10% des données. Les modèles sklearn utilis
 
 La séparation train/test a été faite en **80/20 avec stratification** pour préserver la distribution des classes. Une validation croisée **5-fold** (stratifée) a été appliquée pour évaluer la stabilité :
 
+Tableau 1 : Comparaison des performances des 4 modèles avec validation croisée et sur le jeu de test
+
 | Modèle | CV 5-fold F1 | Test F1 | Test Accuracy | Test Precision | Test Recall |
 |--------|-------------|---------|---------------|----------------|-------------|
 | Logistic Regression (C=0.1) | 98.31% ± 0.18% | 98.36% | 97.04% | 98.10% | 98.61% |
@@ -93,7 +97,7 @@ Le **Random Forest** surpasse très légèrement la régression logistique (98.6
 
 ## Matrices de confusion
 
-![Matrices de confusion des 3 modèles classiques](figures/confusion_matrices_notebook.png)
+![Figure 1 : Matrices de confusion des 3 modèles classiques (LR, NB, RF) sur le jeu de test](figures/confusion_matrices_notebook.png)
 
 Lecture (haut-gauche → bas-droite) : Vrais Négatifs, Faux Positifs, Faux Négatifs, Vrais Positifs.
 
@@ -101,19 +105,19 @@ Les trois modèles classiques produisent très peu de faux positifs. Le Naive Ba
 
 ## Courbes ROC et AUC
 
-![Courbes ROC des 3 modèles](figures/roc_curves_notebook.png)
+![Figure 2 : Courbes ROC des 3 modèles classiques avec AUC](figures/roc_curves_notebook.png)
 
 Les AUC sont toutes supérieures à 0.97, confirmant une excellente capacité de discrimination. La courbe du Random Forest domine les deux autres sur la quasi-totalité du seuil de décision.
 
 ## Courbe d'apprentissage
 
-![Courbes d'apprentissage](figures/learning_curve.png)
+![Figure 3 : Courbe d'apprentissage du Random Forest (évolution du F1 en fonction de la taille d'entraînement)](figures/learning_curve.png)
 
 La courbe d'apprentissage du Random Forest montre que les performances continuent de s'améliorer avec plus de données (légère divergence train/test), indiquant qu'un dataset plus volumineux pourrait encore améliorer le modèle.
 
 ## Importance des features (Random Forest)
 
-![Importance des features](figures/feature_importance.png)
+![Figure 4 : Importance des 20 mots les plus discriminants selon le Random Forest](figures/feature_importance.png)
 
 Les mots les plus discriminants pour la classification sont majoritairement liés à la négativité (`hate`, `die`, `kill`, `death`, `suicide`), mais aussi à des thématiques récurrentes (`covid`, `trump`, `god`). Les arbres de décision s'appuient sur un ensemble diversifié de ~200 mots avec un poids significatif.
 
@@ -122,6 +126,8 @@ Les mots les plus discriminants pour la classification sont majoritairement lié
 Une recherche systématique par **Grid Search** avec validation croisée a été menée :
 
 ### Régression Logistique
+
+Tableau 2 : Grid Search pour la régression logistique — évolution du F1 moyen selon la régularisation C
 
 | C | CV F1 moyen |
 |---|-------------|
@@ -134,6 +140,8 @@ Une recherche systématique par **Grid Search** avec validation croisée a été
 Meilleur paramètre : `C=0.1` (régularisation L2 modérée). Les valeurs supérieures à 0.1 ne changent quasiment pas le score, indiquant que le modèle a convergé.
 
 ### Random Forest
+
+Tableau 3 : Grid Search pour le Random Forest — évolution du F1 moyen selon le nombre d'arbres et la profondeur
 
 | n_estimators | max_depth | CV F1 moyen |
 |-------------|-----------|-------------|
@@ -219,8 +227,8 @@ L'application **Streamlit** est déployée localement et propose **4 onglets** a
 
 Saisie d'un tweet et classification par les **4 modèles** (Logistic Regression, Naive Bayes, Random Forest, BERT DistilBERT) avec score de confiance affiché sous forme de barre de progression. BERT est chargé automatiquement s'il a été préalablement entraîné. L'application affiche également un avertissement sur les limites du modèle (non-détection du harcèlement et du discours haineux). Des exemples prédéfinis permettent de tester rapidement l'application.
 
-![Interface Streamlit](figures/streamlit_app.png)
-![Prédiction Streamlit](figures/streamlit_prediction.png)
+![Figure 5 : Interface principale de l'application Streamlit avec les 4 onglets](figures/streamlit_app.png)
+![Figure 6 : Prédiction d'un tweet suspect avec les 4 modèles et scores de confiance](figures/streamlit_prediction.png)
 
 ### 2. Tableau de bord dynamique
 
@@ -231,7 +239,7 @@ Tableau de bord interactif généré avec **Plotly** permettant de :
 - Comparer les performances (accuracy, precision, recall, F1) sous forme de barres groupées
 - Explorer l'importance des features (coefficients de la régression logistique ou importance de Gini pour Random Forest)
 
-![Tableau de bord dynamique](figures/streamlit_dashboard.png)
+![Figure 7 : Tableau de bord dynamique avec sélecteur de modèle, matrice de confusion et courbes ROC](figures/streamlit_dashboard.png)
 
 ### 3. MLflow
 
@@ -245,7 +253,7 @@ Onglet dédié au tracking des expérimentations **MLflow** :
 
 Toutes les analyses effectuées pendant la session sont conservées avec horodatage, tweet original, tweet nettoyé et résultats détaillés par modèle (incluant BERT). L'historique peut être vidé manuellement.
 
-![Historique des analyses](figures/streamlit_history.png)
+![Figure 8 : Historique des analyses avec horodatage et résultats détaillés par modèle](figures/streamlit_history.png)
 
 ### Commande de lancement
 
@@ -299,6 +307,8 @@ MLflow standardise le suivi des expérimentations et permet de comparer visuelle
 
 ## Difficultés rencontrées et solutions
 
+Tableau 4 : Récapitulatif des difficultés techniques rencontrées et de leurs solutions
+
 | Difficulté | Solution |
 |-----------|----------|
 | Dataset vide après preprocessing (346 lignes) | Suppression silencieuse, pas d'impact sur la qualité |
@@ -329,11 +339,13 @@ Les approches TF-IDF et même BERT (avec un seul passage) peuvent manquer :
 
 # Travail réalisé (Bonus)
 
-En complément du cahier des charges initial, 4 fonctionnalités bonus ont été implémentées avec succès :
+En complément du cahier des charges initial, 5 fonctionnalités bonus ont été implémentées avec succès :
 
 ### B.1 : DistilBERT (Transformers)
 
 Un script d'entraînement `src/models/train_bert.py` fine-tune **DistilBERT** sur le dataset de tweets. Résultats après 1 époque (sur CPU, ~6 min) :
+
+Tableau 5 : Performances du modèle DistilBERT sur le jeu de test
 
 | Métrique | Valeur |
 |----------|--------|
