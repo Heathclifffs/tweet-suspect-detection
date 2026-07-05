@@ -25,7 +25,20 @@ echo "[3/4] Creation du Space..."
 hf repos create "$REPO" --type space --space-sdk docker --exist-ok
 
 echo "[4/4] Push du code avec hf upload..."
-hf upload "$REPO" . --type space --include "src/" --include "data/processed/" --include "models/" --include "pyproject.toml" --include "uv.lock" --include "Dockerfile"
+hf upload "$REPO" . --type space \
+  --include "src/" \
+  --include "data/processed/tweets_clean.csv" \
+  --include "models/*.pkl" \
+  --include "models/*.json" \
+  --include "models/*.csv" \
+  --include "models/*.png" \
+  --include "models/*.npy" \
+  --include "models/*.npz" \
+  --exclude "models/bert_checkpoints/*" \
+  --exclude "models/bert_model/*" \
+  --include "pyproject.toml" \
+  --include "uv.lock" \
+  --include "Dockerfile"
 echo ""
 echo "=== Fini ! ==="
 echo "Lien : https://huggingface.co/spaces/$USER/$REPO"
