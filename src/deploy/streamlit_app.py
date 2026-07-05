@@ -35,9 +35,10 @@ bert_tokenizer = None
 bert_model = None
 
 
-@st.cache_resource
 def load_bert():
     global BERT_AVAILABLE, bert_tokenizer, bert_model
+    if BERT_AVAILABLE:
+        return True
     try:
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
         import torch
@@ -46,9 +47,12 @@ def load_bert():
             bert_tokenizer = AutoTokenizer.from_pretrained(bert_path)
             bert_model = AutoModelForSequenceClassification.from_pretrained(bert_path)
             BERT_AVAILABLE = True
+            st.info("Modele BERT (DistilBERT) charge avec succes.")
             return True
-    except Exception:
-        pass
+        else:
+            st.info("Modele BERT non trouve. Entrainez-le avec `uv run python src/models/train_bert.py`.")
+    except Exception as e:
+        st.warning(f"Erreur chargement BERT : {e}")
     return False
 
 
@@ -217,8 +221,6 @@ def plot_feature_importance(vectorizer, model, model_name, top_n=20):
     return fig
 
 
-load_bert()
-
 if "history" not in st.session_state:
     st.session_state.history = []
 
@@ -245,10 +247,8 @@ with tab1:
         "Saisissez un tweet ci-dessous pour savoir s'il est **suspect** ou **non suspect**."
     )
 
-    if BERT_AVAILABLE:
-        st.info("Modele BERT (DistilBERT) charge — 4 modeles disponibles.")
-    else:
-        st.caption("3 modeles sklearn disponibles. Pour ajouter BERT, entrainez d'abord `uv run python src/models/train_bert.py`.")
+    if not BERT_AVAILABLE:
+        load_bert()
 
     tweet = st.text_area(
         "Votre tweet",
