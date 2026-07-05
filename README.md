@@ -10,13 +10,15 @@ pinned: false
 
 Classification automatique de tweets suspects (haineux, offensants, trompeurs) avec un pipeline ML reproductible basé sur DVC.
 
-Deploiement automatise sur Hugging Face Spaces :
+Application en ligne sur Hugging Face Spaces :
+
+➡️  **https://huggingface.co/spaces/yipene/tweet-suspect-detection**
+
+Deploiement automatise :
 
 ```bash
 uv run bash scripts/deploy_hf_space.sh
 ```
-
-Le script cree le Space, configure le remote et push le code. Le README contient deja les metadonnees YAML necessaires (`sdk: streamlit`, `app_file: src/deploy/streamlit_app.py`).
 
 ## Contexte
 
