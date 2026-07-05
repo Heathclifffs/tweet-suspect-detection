@@ -386,7 +386,7 @@ with tab3:
                             "status": r.info.status,
                         })
                     st.subheader(f"Dernieres runs ({len(runs)})")
-                    st.dataframe(run_data, use_container_width=True)
+                    st.dataframe(run_data, width="stretch")
                 else:
                     st.info("Aucune run trouvee.")
         except Exception as e:
