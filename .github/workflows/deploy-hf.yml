@@ -1,0 +1,35 @@
+name: Deploy BERT to Hugging Face Hub
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-hf.yml"
+      - "scripts/push_to_hub.py"
+      - "src/models/train_bert.py"
+      - "data/processed/tweets_clean.csv"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Entraîner DistilBERT
+        run: uv run python src/models/train_bert.py
+
+      - name: Push to Hugging Face Hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_REPO_ID: ${{ secrets.HF_REPO_ID }}
+        run: uv run python scripts/push_to_hub.py
