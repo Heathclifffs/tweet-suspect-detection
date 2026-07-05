@@ -1,6 +1,19 @@
+---
+title: Detection de Tweets Suspects
+emoji: 🕵️
+colorFrom: red
+colorTo: blue
+sdk: streamlit
+sdk_version: 1.58.0
+app_file: src/deploy/streamlit_app.py
+pinned: false
+---
+
 # Détection de Tweets Suspects
 
 Classification automatique de tweets suspects (haineux, offensants, trompeurs) avec un pipeline ML reproductible basé sur DVC.
+
+[Deploiement sur Hugging Face Spaces](https://huggingface.co/new-space) : creer un Space, lier ce depot GitHub, et le SDK Streamlit sera automatiquement detecte.
 
 ## Contexte
 
@@ -175,6 +188,34 @@ uv run uvicorn src.deploy.api:app --reload
 ## Rapport
 
 Le rapport final est disponible dans `reports/rapport.pdf`.
+
+## Bonus
+
+### BERT (Transformers)
+
+Un modele **DistilBERT** est disponible dans `src/models/train_bert.py` pour une approche plus avancee que TF-IDF. Necessite PyTorch :
+
+```bash
+uv add torch
+uv run python src/models/train_bert.py
+```
+
+### MLflow
+
+Le tracking des experimentations avec **MLflow** est integre dans `src/models/train_with_mlflow.py` :
+
+```bash
+uv run python src/models/train_with_mlflow.py
+uv run mlflow ui
+```
+
+### CI/CD (GitHub Actions)
+
+Le workflow `.github/workflows/ci.yml` execute automatiquement `dvc repro` a chaque push.
+
+### Hugging Face Spaces
+
+Ce depot est compatible avec [Hugging Face Spaces](https://huggingface.co/new-space) (SDK Streamlit). Creer un Space en liant ce depot GitHub.
 
 ## Tech Stack
 

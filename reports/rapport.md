@@ -199,12 +199,17 @@ uv run uvicorn src.deploy.api:app --reload
 - Déséquilibre des classes nécessitant des stratégies d'adaptation
 - Mise en place du pipeline DVC avec téléchargement depuis Google Drive
 
+## Travail realise (Bonus)
+
+En complément du cahier des charges initial, les fonctionnalités bonus suivantes ont été implémentées :
+
+- **Modele BERT** : script d'entraînement `src/models/train_bert.py` utilisant DistilBERT
+- **MLflow** : tracking des expérimentations avec `src/models/train_with_mlflow.py`
+- **CI/CD** : workflow GitHub Actions pour exécuter `dvc repro` automatiquement
+- **Hugging Face Spaces** : configuration YAML intégrée au README pour un déploiement cloud en un clic
+
 ## Perspectives d'amélioration
 
-- Utilisation de **Sentence Transformers** ou **BERT** pour une meilleure représentation sémantique
-- Déploiement sur le cloud (Hugging Face Spaces / Render)
-- Intégration CI/CD avec GitHub Actions pour automatiser le pipeline DVC
-- Expérimentation avec MLflow pour le suivi des runs et la comparaison d'expériences
 - Ajout d'un dataset spécialisé hate speech pour améliorer la détection des contenus sensibles
 - Export CSV de l'historique des analyses
 - Mode batch pour analyser un fichier CSV de tweets

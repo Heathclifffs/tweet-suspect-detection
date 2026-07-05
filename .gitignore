@@ -1,3 +1,6 @@
+# Skill / checklist interne (pas de versionning)
+skill.md
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -37,3 +40,8 @@ Thumbs.db
 # Environnement
 .env
 *.env.local
+
+# MLflow
+mlruns/
+models/bert_checkpoints/
+models/bert_logs/
