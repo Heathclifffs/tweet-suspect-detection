@@ -10,35 +10,35 @@
 - [x] **G.1** Commits réguliers avec messages explicites (en français ou anglais)
 - [x] **G.2** `.gitignore` propre (inclure `.dvc/`, `__pycache__/`, `.env`, `data/`, etc.)
 - [x] **G.3** Ne jamais versionner les données brutes ou les modèles volumineux dans Git
-- [ ] **G.4** Faire un `git push` après chaque avancée significative
+- [ ] **G.4** Faire un `git push` sur GitHub (pas encore fait — depot non configure)
 
 ### Structure du projet
 - [x] **S.1** Arborescence claire et organisée (sources, notebooks, données, modèles, rapports)
-- [ ] **S.2** Code modulaire : fonctions réutilisables dans des scripts `.py` séparés
-- [ ] **S.3** Notebooks réservés à l'exploration / démo — pas la logique métier principale
+- [x] **S.2** Code modulaire : fonctions réutilisables dans des scripts `.py` séparés
+- [x] **S.3** Notebooks réservés à l'exploration / démo — pas la logique métier principale
 
 ### Environnement Python (avec uv)
 - [x] **E.1** Utiliser **uv** pour la gestion de l'environnement et des dépendances
 - [x] **E.2** Initialiser le projet avec `uv init` ou `uv venv`
 - [x] **E.3** Installer les dépendances avec `uv add <package>` (pas de `pip install`)
 - [x] **E.4** Générer/Maintenir `pyproject.toml` et `uv.lock` pour la reproductibilité
-- [ ] **E.5** Utiliser `uv sync` pour reproduire l'environnement depuis un clone frais
-- [ ] **E.6** Ne pas installer de packages en dehors de l'environnement uv
+- [x] **E.5** Utiliser `uv sync` pour reproduire l'environnement depuis un clone frais
+- [x] **E.6** Ne pas installer de packages en dehors de l'environnement uv
 
 ### Qualité du code
-- [ ] **Q.1** Nommage cohérent des variables, fonctions, fichiers (snake_case)
-- [ ] **Q.2** Fonctions avec docstrings (au moins 1 ligne décrivant le rôle)
-- [ ] **Q.3** Ne pas laisser de cellules cassées ou de code mort dans les notebooks
-- [ ] **Q.4** Utiliser des chemins relatifs ou des variables d'environnement, pas de chemins absolus
+- [x] **Q.1** Nommage cohérent des variables, fonctions, fichiers (snake_case)
+- [x] **Q.2** Fonctions avec docstrings (au moins 1 ligne décrivant le rôle) — dans preprocessing.py, _get_wordnet_pos et clean_text ont des docstrings
+- [x] **Q.3** Ne pas laisser de cellules cassées ou de code mort dans les notebooks — notebooks reexecutés avec succes
+- [x] **Q.4** Utiliser des chemins relatifs ou des variables d'environnement, pas de chemins absolus
 
 ### Reproductibilité DVC
-- [ ] **R.1** Les dépendances de chaque étape du pipeline DVC doivent être explicites
-- [ ] **R.2** Les sorties de chaque étape doivent être versionnées par DVC
-- [ ] **R.3** Tester `dvc repro` après chaque modification du pipeline
+- [x] **R.1** Les dépendances de chaque étape du pipeline DVC doivent être explicites
+- [x] **R.2** Les sorties de chaque étape doivent être versionnées par DVC
+- [x] **R.3** Tester `dvc repro` après chaque modification du pipeline
 
 ### Rapport et rendu
-- [ ] **Z.1** Prendre des captures d'écran au fur et à mesure (ne pas tout laisser à la fin)
-- [ ] **Z.2** Faire un point de validation avant de passer à la partie suivante
+- [x] **Z.1** Prendre des captures d'écran au fur et à mesure (ne pas tout laisser à la fin) — 6 captures dans `reports/figures/`
+- [x] **Z.2** Faire un point de validation avant de passer à la partie suivante
 
 ---
 
@@ -53,7 +53,7 @@
 - [x] **1.7** Suppression des caractères spéciaux (dans `src/preprocessing.py`)
 - [x] **1.8** Suppression des URLs (dans `src/preprocessing.py`)
 - [x] **1.9** Suppression des stop words (dans `src/preprocessing.py`)
-- [ ] **1.10** Lemmatisation ou stemming (optionnel mais recommandé)
+- [x] **1.10** Lemmatisation ou stemming (optionnel mais recommandé) — WordNetLemmatizer avec POS tagging
 - [x] **1.11** Documenter les choix de prétraitement ✅ (dans le notebook)
 
 ##  Partie 2 — Gestion des données avec DVC (15 pts)
@@ -67,8 +67,8 @@
 - [x] **2.7** Créer un pipeline DVC — étape **entraînement**
 - [x] **2.8** Créer un pipeline DVC — étape **évaluation**
 - [x] **2.9** Vérifier la reproductibilité (`dvc repro`)
-- [ ] **2.10** Pousser les fichiers DVC et le code sur GitHub
-- [ ] **2.11** Vérifier que `dvc repro` fonctionne depuis un clone frais
+- [ ] **2.10** Pousser les fichiers DVC et le code sur GitHub (pas de depot distant configure)
+- [ ] **2.11** Vérifier que `dvc repro` fonctionne depuis un clone frais (depend de 2.10)
 
 ##  Partie 3 — Représentation des données (15 pts)
 
@@ -123,7 +123,7 @@
 - [ ] **B.1** Utilisation de Transformers avancés (BERT, etc.)
 - [ ] **B.2** Déploiement sur le cloud (Hugging Face Spaces / Render / Railway)
 - [ ] **B.3** Intégration CI/CD (GitHub Actions)
-- [ ] **B.4** Dashboard de monitoring
+- [x] **B.4** Dashboard de monitoring — tableau de bord dynamique Plotly avec selecteur de modele, matrices confusion, ROC, feature importance
 - [ ] **B.5** Expérimentation avec MLflow en complément de DVC
 
 ---

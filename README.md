@@ -39,41 +39,54 @@ tweet-suspect-detection/
 └── uv.lock                 # Lock uv
 ```
 
-## Installation
+## Prérequis
 
-### Prérequis
+- **Python ≥ 3.13**
+- **[uv](https://docs.astral.sh/uv/)** (gestionnaire de paquets)
 
-- Python ≥ 3.13
-- [uv](https://docs.astral.sh/uv/) (gestionnaire de paquets)
+  ```bash
+  # Installer uv (si pas déjà fait)
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
 
-### Setup
+## Installation et lancement (etape par etape)
 
 ```bash
-# Cloner le dépôt
+# 1. Cloner le dépôt
 git clone <repo-url>
 cd tweet-suspect-detection
 
-# Créer l'environnement et installer les dépendances
+# 2. Créer l'environnement virtuel et installer les dépendances
 uv sync
 
-# Télécharger le dataset (avec confirmation interactive)
+# 3. Télécharger le dataset (confirmation interactive demandée)
 uv run python src/download.py
-```
 
-## Guide de démarrage rapide
-
-```bash
-# 1. Installer l'environnement
-uv sync
-
-# 2. Lancer l'analyse exploratoire (notebooks)
-uv run jupyter lab
-
-# 3. Exécuter tout le pipeline ML
+# 4. Exécuter tout le pipeline ML (preprocess → train → evaluate)
 uv run dvc repro
 
-# 4. Voir les métriques
+# 5. Voir les métriques des modèles
 cat models/metrics.json
+
+# 6. Lancer l'application Streamlit (interface graphique)
+uv run streamlit run src/deploy/streamlit_app.py
+
+# 7. (Optionnel) Explorer les notebooks
+uv run jupyter lab
+```
+
+## Application Streamlit
+
+L'interface propose 3 onglets :
+
+| Onglet | Description |
+|--------|-------------|
+| **Prediction** | Saisir un tweet ou tester un exemple. Resultats des 3 modeles (prediction + confiance). |
+| **Tableau de bord** | Selecteur de modele, matrice de confusion interactive, courbes ROC, comparaison des performances, feature importance (plotly dynamique). |
+| **Historique** | Toutes les analyses de la session avec horodatage. |
+
+```bash
+uv run streamlit run src/deploy/streamlit_app.py
 ```
 
 ## Pipeline DVC
@@ -120,8 +133,8 @@ uv run dvc repro        # reproduit tout le pipeline
 
 Le jeu de données provient de [Google Drive](https://drive.google.com/file/d/1US0luOWPOeVPpUQnpyxr41zrBmeg4Gjk/view).
 Il contient 60 000 tweets avec une étiquette binaire :
-- **0** : Non suspect
-- **1** : Suspect
+- **0** : Suspect (negatif, plaintes, contenu sensible)
+- **1** : Non suspect (neutre, conversation normale)
 
 Le dataset est tracké par Git (4.7 Mo). Pour le mettre à jour :
 ```bash
@@ -144,8 +157,6 @@ Environ 346 tweets vides supprimés sur 60 000.
 
 ## Modèles et résultats
 
-### Modèles et résultats
-
 | Modèle | Accuracy | Precision | Recall | F1-Score |
 |--------|----------|-----------|--------|----------|
 | Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% |
@@ -155,15 +166,8 @@ Environ 346 tweets vides supprimés sur 60 000.
 Représentation : TF-IDF (5000 features).  
 Gestion du déséquilibre : `class_weight="balanced"`.
 
-## Déploiement
+## API FastAPI
 
-### Option A : Streamlit
-```bash
-uv run streamlit run src/deploy/streamlit_app.py
-```
-L'interface permet de saisir un tweet et d'obtenir la prédiction des 3 modèles avec la probabilité associée.
-
-### Option B : API FastAPI
 ```bash
 uv run uvicorn src.deploy.api:app --reload
 ```
@@ -189,3 +193,4 @@ Le rapport final est disponible dans `reports/rapport.pdf`.
 ## Auteurs
 
 Projet réalisé dans le cadre du M2 FD&IA — *Construction de Modèles et Déploiement*.
+# tweet-suspect-detection

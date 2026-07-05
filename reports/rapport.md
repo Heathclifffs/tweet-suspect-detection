@@ -1,6 +1,6 @@
 ---
 title: "Détection de Tweets Suspects"
-subtitle: "Projet — Construction de Modèles et Déploiement"
+subtitle: "Projet : Construction de Modèles et Déploiement"
 author: "M2 FD&IA"
 date: "Juin 2026"
 geometry: margin=2.5cm
@@ -17,8 +17,8 @@ L'objectif est de couvrir l'ensemble du cycle de vie d'un projet de Machine Lear
 
 Le jeu de données provient de Google Drive et contient **60 000 tweets** avec une étiquette binaire :
 
-- **0** : Non suspect
-- **1** : Suspect
+- **0** : Suspect
+- **1** : Non suspect
 
 Deux variables sont disponibles : `message` (texte du tweet) et `label` (classe).
 
@@ -28,16 +28,16 @@ Deux variables sont disponibles : `message` (texte du tweet) et `label` (classe)
 
 Le nettoyage du texte est effectué via `src/preprocessing.py` et comprend les étapes suivantes :
 
-1. **Minuscules** — uniformisation de la casse
-2. **Suppression des URLs** — les liens n'ont pas de valeur sémantique
-3. **Suppression des mentions** (`@utilisateur`) — identifiants uniques non généralisables
-4. **Nettoyage des hashtags** — on garde le mot, on supprime le `#`
-5. **Entités HTML** (`&amp;`, `&lt;`, etc.) — conversion en espaces
-6. **Normalisation des répétitions** — `goooood` → `good`
-7. **Expansion des contractions** — `don't` → `do not`
-8. **Suppression des caractères spéciaux** — seuls `[a-zA-Z]` sont conservés
-9. **Suppression des stop words** — mots fréquents non discriminants (NLTK) + mots < 3 lettres
-10. **Lemmatisation** avec `WordNetLemmatizer` et POS tagging — `running` → `run`
+1. **Minuscules** : uniformisation de la casse
+2. **Suppression des URLs** : les liens n'ont pas de valeur sémantique
+3. **Suppression des mentions** (`@utilisateur`) : identifiants uniques non généralisables
+4. **Nettoyage des hashtags** : on garde le mot, on supprime le `#`
+5. **Entités HTML** (`&amp;`, `&lt;`, etc.) : conversion en espaces
+6. **Normalisation des répétitions** : `goooood` → `good`
+7. **Expansion des contractions** : `don't` → `do not`
+8. **Suppression des caractères spéciaux** : seuls `[a-zA-Z]` sont conservés
+9. **Suppression des stop words** : mots fréquents non discriminants (NLTK) + mots < 3 lettres
+10. **Lemmatisation** avec `WordNetLemmatizer` et POS tagging : `running` → `run`
 
 **346 tweets** vides après nettoyage sur 60 000 (supprimés).
 
@@ -45,7 +45,7 @@ Ces choix sont documentés dans le notebook d'analyse exploratoire (`notebooks/0
 
 ## Représentation des données
 
-La représentation choisie est **TF-IDF** (Term Frequency — Inverse Document Frequency) avec un maximum de **5 000 features**. Ce choix se justifie par :
+La représentation choisie est **TF-IDF** (Term Frequency : Inverse Document Frequency) avec un maximum de **5 000 features**. Ce choix se justifie par :
 
 - Sa simplicité et son efficacité pour la classification de textes courts
 - Sa capacité à pondérer l'importance des mots dans le corpus
@@ -107,9 +107,9 @@ Le pipeline reproductible se compose de 3 étapes :
 uv run dvc repro
 ```
 
-1. **preprocess** — nettoyage du texte
-2. **train** — entraînement des 3 modèles avec TF-IDF
-3. **evaluate** — calcul des métriques et génération des graphiques
+1. **preprocess** : nettoyage du texte
+2. **train** : entraînement des 3 modèles avec TF-IDF
+3. **evaluate** : calcul des métriques et génération des graphiques
 
 ### Commandes essentielles
 
@@ -137,23 +137,48 @@ Le dataset est téléchargeable via `uv run python src/download.py` (télécharg
 
 Une recherche d'hyperparamètres (Grid Search) a été effectuée sur deux modèles :
 
-- **Régression Logistique** : `C` ∈ {0.01, 0.1, 1, 10, 100} — validation croisée 5-fold
-- **Random Forest** : `n_estimators` ∈ {50, 100, 200}, `max_depth` ∈ {5, 10, 20, None} — validation croisée 3-fold
+- **Régression Logistique** : `C` ∈ {0.01, 0.1, 1, 10, 100} : validation croisée 5-fold
+- **Random Forest** : `n_estimators` ∈ {50, 100, 200}, `max_depth` ∈ {5, 10, 20, None} : validation croisée 3-fold
 
 Les résultats détaillés sont visibles dans `notebooks/02_modeling.ipynb`.
 
 # Déploiement
 
-L'application **Streamlit** est déployée localement. L'interface permet de saisir un tweet, choisir un modèle et obtenir la prédiction avec la probabilité associée.
+L'application **Streamlit** est déployée localement et propose 3 onglets avec une interface interactive :
+
+### Prediction
+
+Saisie d'un tweet et classification par les 3 modèles (Logistic Regression, Naive Bayes, Random Forest) avec score de confiance affiché sous forme de barre de progression. L'application affiche également un avertissement sur les limites du modèle (non-détection du harcèlement et du discours haineux). Des exemples prédéfinis permettent de tester rapidement l'application.
+
+![Interface Streamlit](figures/streamlit_app.png)
+![Prédiction Streamlit](figures/streamlit_prediction.png)
+
+### Tableau de bord dynamique
+
+Tableau de bord interactif généré avec **Plotly** permettant de :
+- Sélectionner un modèle parmi les 3 via un menu déroulant
+- Visualiser la matrice de confusion interactive (couleurs, survol)
+- Afficher les courbes ROC des 3 modèles superposées avec l'AUC
+- Comparer les performances (accuracy, precision, recall, F1) sous forme de barres groupées
+- Explorer l'importance des features (coefficients de la régression logistique ou importance de Gini pour Random Forest)
+
+![Tableau de bord dynamique](figures/streamlit_dashboard.png)
+
+### Historique
+
+Toutes les analyses effectuées pendant la session sont conservées avec horodatage, tweet original, tweet nettoyé et résultats détaillés par modèle. L'historique peut être vidé manuellement.
+
+![Historique des analyses](figures/streamlit_history.png)
+
+### Commande de lancement
 
 ```bash
 uv run streamlit run src/deploy/streamlit_app.py
 ```
 
-![Interface Streamlit](figures/streamlit_app.png)
-![Prédiction Streamlit](figures/streamlit_prediction.png)
+### API FastAPI
 
-Une **API FastAPI** est également prévue comme alternative :
+Une interface API REST est également disponible comme alternative :
 
 ```bash
 uv run uvicorn src.deploy.api:app --reload
@@ -164,6 +189,7 @@ uv run uvicorn src.deploy.api:app --reload
 ## Limites
 
 - La représentation TF-IDF ne capture pas le contexte sémantique
+- Le dataset d'entraînement ne contient pas de tweets de harcèlement ou de discours haineux ; le modèle détecte principalement la négativité générale (plaintes, souffrance personnelle) et peut ne pas identifier correctement le racisme, les insultes ciblées ou les menaces. Un avertissement est affiché dans l'interface Streamlit pour informer l'utilisateur de cette limitation
 - Les modèles n'ont pas été testés sur des données réelles en streaming
 - Pas de détection multilingue (stop words english uniquement)
 
@@ -175,11 +201,13 @@ uv run uvicorn src.deploy.api:app --reload
 
 ## Perspectives d'amélioration
 
-- Utilisation de **Sentence Transformers** ou **BERT** pour une meilleure représentation
-- Déploiement sur le cloud (Hugging Face Spaces)
-- Dashboard de monitoring des performances en production
-- Intégration CI/CD avec GitHub Actions
-- Expérimentation avec MLflow pour le suivi des runs
+- Utilisation de **Sentence Transformers** ou **BERT** pour une meilleure représentation sémantique
+- Déploiement sur le cloud (Hugging Face Spaces / Render)
+- Intégration CI/CD avec GitHub Actions pour automatiser le pipeline DVC
+- Expérimentation avec MLflow pour le suivi des runs et la comparaison d'expériences
+- Ajout d'un dataset spécialisé hate speech pour améliorer la détection des contenus sensibles
+- Export CSV de l'historique des analyses
+- Mode batch pour analyser un fichier CSV de tweets
 
 # Conclusion
 
