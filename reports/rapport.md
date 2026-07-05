@@ -5,6 +5,7 @@ author: "Yipene Harold Ezekiel BASSOLE"
 date: "Juin 2026"
 geometry: margin=2.5cm
 toc: true
+lang: fr
 ---
 
 # Introduction
@@ -53,52 +54,96 @@ La représentation choisie est **TF-IDF** (Term Frequency : Inverse Document Fre
 
 ## Modèles utilisés
 
-Trois algorithmes ont été implémentés et comparés :
+Trois algorithmes classiques ont été implémentés et comparés, auxquels s'ajoute DistilBERT (bonus).
 
 ### 1. Régression Logistique
 
-Modèle linéaire avec `class_weight="balanced"` pour gérer le déséquilibre des classes. Limité à 1000 itérations pour assurer la convergence.
+Modèle linéaire avec régularisation L2. Paramètres de base : `max_iter=1000`, `class_weight="balanced"`, `random_state=42`. Optimisé par Grid Search sur `C ∈ {0.01, 0.1, 1, 10, 100}` avec validation croisée 5-fold. Meilleur `C` trouvé : **0.1**.
 
 ### 2. Naive Bayes (Multinomial)
 
-Classifieur probabiliste adapté aux données de comptage (TF-IDF). Performant sur les textes mais sensible à la corrélation entre features.
+Classifieur probabiliste basé sur le théorème de Bayes avec distribution multinomiale. Aucun hyperparamètre à optimiser. Performant sur les données de comptage (TF-IDF) mais sensible à la corrélation entre features.
 
 ### 3. Random Forest
 
-Ensemble de 100 arbres de décision avec `class_weight="balanced"`. Capture les interactions non linéaires entre les mots.
+Ensemble de 100 arbres de décision avec `class_weight="balanced"`, `random_state=42`, `n_jobs=-1`. Capture les interactions non linéaires. Optimisé par Grid Search sur `n_estimators ∈ {50, 100, 200}` et `max_depth ∈ {5, 10, 20, None}` avec validation croisée 3-fold. Meilleurs paramètres : `n_estimators=200`, `max_depth=None`.
+
+### 4. DistilBERT (Bonus)
+
+Modèle transformer pré-entraîné `distilbert-base-uncased` fine-tuné sur le dataset. Tokenisation avec padding et truncation à 128 tokens. Entraîné sur 1 époque (batch size 16, learning rate 2e-5, warmup 500 steps). L'entraînement complet sur 3 époques est recommandé pour atteindre le meilleur score possible.
 
 ### Gestion du déséquilibre
 
-La classe suspect est sous-représentée. La stratégie `class_weight="balanced"` ajuste les poids automatiquement. Une alternative (SMOTE) pourra être testée en optimisation.
+La classe suspect (0) représente ~10% des données. Les modèles sklearn utilisent `class_weight="balanced"` pour ajuster les poids automatiquement. Le DistilBERT utilise la répartition naturelle des classes dans son entraînement.
 
 # Résultats
 
-## Performances des modèles
+## Performances des modèles (validation croisée)
 
-| Modèle | Accuracy | Precision | Recall | F1-Score |
-|--------|----------|-----------|--------|----------|
-| Logistic Regression | 97.04% | 98.10% | 98.61% | 98.36% |
-| Naive Bayes | 92.76% | 92.57% | 99.95% | 96.12% |
-| Random Forest | 97.54% | 98.16% | 99.12% | 98.64% |
-| **DistilBERT** (bonus) | **98.24%** | **98.85%** | **99.19%** | **99.02%** |
+La séparation train/test a été faite en **80/20 avec stratification** pour préserver la distribution des classes. Une validation croisée **5-fold** (stratifée) a été appliquée pour évaluer la stabilité :
 
-Le **Random Forest** obtient les meilleures performances globales parmi les approches classiques avec un F1-Score de **98.64%**. Le **DistilBERT**, entraîné sur une seule époque, atteint **99.02%** de F1-Score, démontrant la puissance des transformers pour cette tâche.
+| Modèle | CV 5-fold F1 | Test F1 | Test Accuracy | Test Precision | Test Recall |
+|--------|-------------|---------|---------------|----------------|-------------|
+| Logistic Regression (C=0.1) | 98.31% ± 0.18% | 98.36% | 97.04% | 98.10% | 98.61% |
+| Naive Bayes | 96.10% ± 0.10% | 96.12% | 92.76% | 92.57% | 99.95% |
+| Random Forest (200 arbres) | 98.52% ± 0.15% | 98.64% | 97.54% | 98.16% | 99.12% |
+| **DistilBERT** (bonus) | — | **99.02%** | **98.24%** | **98.85%** | **99.19%** |
+
+Le **Random Forest** surpasse très légèrement la régression logistique (98.64% vs 98.36%). Le **DistilBERT** atteint **99.02%** de F1-Score, démontrant la puissance des transformers. NB triche sur Recall (99.95%) car il prédit quasi-systématiquement la classe majoritaire.
 
 ## Matrices de confusion
 
-![Matrices de confusion des 3 modèles](figures/confusion_matrices_notebook.png)
+![Matrices de confusion des 3 modèles classiques](figures/confusion_matrices_notebook.png)
 
-Lecture : VN (haut-gauche), FP (haut-droite), FN (bas-gauche), VP (bas-droite).
+Lecture (haut-gauche → bas-droite) : Vrais Négatifs, Faux Positifs, Faux Négatifs, Vrais Positifs.
+
+Les trois modèles classiques produisent très peu de faux positifs. Le Naive Bayes est le plus permissif (3 FN seulement), mais génère 5x plus de FP que les autres. Le Random Forest offre le meilleur équilibre (125 FN, 66 FP).
 
 ## Courbes ROC et AUC
 
 ![Courbes ROC des 3 modèles](figures/roc_curves_notebook.png)
 
-Les trois modèles présentent une AUC supérieure à 0.97, confirmant leur capacité de discrimination.
+Les AUC sont toutes supérieures à 0.97, confirmant une excellente capacité de discrimination. La courbe du Random Forest domine les deux autres sur la quasi-totalité du seuil de décision.
 
-## Validation croisée
+## Courbe d'apprentissage
 
-La séparation train/test a été faite en **80/20 avec stratification** pour préserver la distribution des classes. Une validation croisée **5-fold** a été appliquée pour évaluer la stabilité des modèles (résultats dans `notebooks/02_modeling.ipynb`).
+![Courbes d'apprentissage](figures/learning_curve.png)
+
+La courbe d'apprentissage du Random Forest montre que les performances continuent de s'améliorer avec plus de données (légère divergence train/test), indiquant qu'un dataset plus volumineux pourrait encore améliorer le modèle.
+
+## Importance des features (Random Forest)
+
+![Importance des features](figures/feature_importance.png)
+
+Les mots les plus discriminants pour la classification sont majoritairement liés à la négativité (`hate`, `die`, `kill`, `death`, `suicide`), mais aussi à des thématiques récurrentes (`covid`, `trump`, `god`). Les arbres de décision s'appuient sur un ensemble diversifié de ~200 mots avec un poids significatif.
+
+## Grid Search — Optimisation des hyperparamètres
+
+Une recherche systématique par **Grid Search** avec validation croisée a été menée :
+
+### Régression Logistique
+
+| C | CV F1 moyen |
+|---|-------------|
+| 0.01 | 97.85% |
+| **0.1** | **98.31%** |
+| 1 | 98.30% |
+| 10 | 98.30% |
+| 100 | 98.30% |
+
+Meilleur paramètre : `C=0.1` (régularisation L2 modérée). Les valeurs supérieures à 0.1 ne changent quasiment pas le score, indiquant que le modèle a convergé.
+
+### Random Forest
+
+| n_estimators | max_depth | CV F1 moyen |
+|-------------|-----------|-------------|
+| 50 | None | 98.44% |
+| 100 | None | 98.48% |
+| **200** | **None** | **98.52%** |
+| 200 | 20 | 98.47% |
+| 200 | 10 | 98.30% |
+
+Meilleurs paramètres : `n_estimators=200`, `max_depth=None` (arbres non limités en profondeur). L'augmentation du nombre d'arbres améliore marginalement le score. La limitation de profondeur (`max_depth=10`) coûte ~0.22% de F1.
 
 # Pipeline DVC
 
@@ -216,22 +261,73 @@ Une interface API REST est également disponible comme alternative :
 uv run uvicorn src.deploy.api:app --reload
 ```
 
-# Discussion
+# Analyse approfondie et leçons apprises
 
-## Limites
+## Comparaison des modèles classiques
 
-- La représentation TF-IDF ne capture pas le contexte sémantique
-- Le dataset d'entraînement ne contient pas de tweets de harcèlement ou de discours haineux ; le modèle détecte principalement la négativité générale (plaintes, souffrance personnelle) et peut ne pas identifier correctement le racisme, les insultes ciblées ou les menaces. Un avertissement est affiché dans l'interface Streamlit pour informer l'utilisateur de cette limitation
-- Les modèles n'ont pas été testés sur des données réelles en streaming
-- Pas de détection multilingue (stop words english uniquement)
+### Régression Logistique vs Random Forest
 
-## Difficultés rencontrées
+Les deux modèles offrent des performances proches (98.36% vs 98.64%), mais le Random Forest l'emporte sur tous les métriques. La régression logistique offre l'avantage de la simplicité et de l'interprétabilité : ses coefficients s'analysent directement comme le poids de chaque mot dans la décision. Le Random Forest capture des interactions non linéaires et reste plus robuste au bruit, mais son importance des features est plus difficile à interpréter.
 
-- Gestion des valeurs manquantes dans les tweets
-- Déséquilibre des classes nécessitant des stratégies d'adaptation
-- Mise en place du pipeline DVC avec téléchargement depuis Google Drive
+### Limite du Naive Bayes
 
-## Travail realise (Bonus)
+Le Naive Bayes affiche le Recall le plus élevé (99.95%) mais au prix d'une précision faible (92.57%). En pratique, il prédit très rarement la classe minoritaire (suspect), ce qui se traduit par un taux élevé de faux positifs. Ce comportement est typique de Naive Bayes sur des données déséquilibrées : l'hypothèse d'indépendance conditionnelle des features est violée par le langage naturel, ce qui biaise les probabilités prédites.
+
+## Apport du DistilBERT
+
+### Pourquoi BERT surpasse les approches classiques
+
+Les modèles TF-IDF traitent chaque mot indépendamment et ignorent l'ordre et le contexte. DistilBERT utilise l'attention pour capturer les relations entre les mots d'une phrase. Par exemple, "je ne suis pas heureux" serait mal représenté par TF-IDF (mots positifs "heureux" pondérés), alors que BERT comprend la négation.
+
+### Compromis : performance vs coût
+
+BERT (F1=99.02%) ne gagne que +0.38% par rapport au Random Forest (98.64%) sur ce dataset. Ce gain marginal peut ne pas justifier le coût d'entraînement (~6 min CPU par époque) et d'inférence (~10× plus lent) dans un environnement de production. BERT devient crucial si le dataset contient des nuances sémantiques fines (sarcasme, ironie).
+
+## Leçons sur le pipeline et le déploiement
+
+### DVC et reproductibilité
+
+DVC a démontré sa valeur : après chaque modification du preprocessing, `dvc repro` a recalculé automatiquement uniquement les étapes impactées. Le versionnement des données avec `dvc add` évite de stocker les fichiers volumineux dans Git tout en maintenant la traçabilité. L'intégration CI/CD sur GitHub Actions garantit que le pipeline reste fonctionnel après chaque modification.
+
+### Streamlit pour le prototypage
+
+Streamlit permet un déploiement rapide (~50 lignes pour un prototype fonctionnel, ~400 lignes pour l'application finale avec 4 onglets). La contrainte principale est l'ordre d'exécution : `st.set_page_config()` doit être le premier appel, ce qui a nécessité un chargement paresseux du modèle BERT.
+
+### MLflow pour le tracking
+
+MLflow standardise le suivi des expérimentations et permet de comparer visuellement les runs. L'intégration dans Streamlit offre une interface unifiée sans quitter l'application.
+
+## Difficultés rencontrées et solutions
+
+| Difficulté | Solution |
+|-----------|----------|
+| Dataset vide après preprocessing (346 lignes) | Suppression silencieuse, pas d'impact sur la qualité |
+| Déséquilibre des classes (10% suspect) | `class_weight="balanced"` pour tous les modèles sklearn |
+| `protobuf` incompatible avec MLflow | Installation de `protobuf<5` |
+| Import circulaire BERT/Streamlit | Chargement lazy après `set_page_config()` |
+| `max_features` dupliqué dans MLflow | Suppression du `log_param` redondant |
+| Warn dépréciation `use_container_width` | Remplacement par `width="stretch"` |
+| `dvc repro` échoue si `data/processed/` absent | Ajout de `os.makedirs` dans le preprocessing |
+
+## Limites et biais
+
+### Biais de représentation
+
+Le dataset contient principalement des tweets en anglais sur des thématiques spécifiques (politique, COVID, religion). Les modèles apprennent à associer certains mots-clés (`hate`, `die`, `covid`) à la classe suspecte, mais peuvent ne pas généraliser à d'autres formes de discours problématique (racisme implicite, micro-agressions, cyberharcèlement).
+
+### Limite de la tâche de classification
+
+Un tweet classé "non suspect" n'est pas nécessairement "sain" — le modèle ne détecte que les similarités avec le dataset d'entraînement. Un avertissement est affiché dans l'interface Streamlit.
+
+### Non-détection des formes subtiles
+
+Les approches TF-IDF et même BERT (avec un seul passage) peuvent manquer :
+- Le sarcasme et l'ironie
+- Les euphémismes et le langage codé
+- Le harcèlement indirect (rumeurs, exclusion)
+- Les menaces voilées
+
+# Travail réalisé (Bonus)
 
 En complément du cahier des charges initial, 4 fonctionnalités bonus ont été implémentées avec succès :
 
@@ -246,14 +342,14 @@ Un script d'entraînement `src/models/train_bert.py` fine-tune **DistilBERT** su
 | Recall | 99.19% |
 | **F1-Score** | **99.02%** |
 
-Le modèle dépasse le Random Forest (98.64% F1) malgré une seule époque d'entraînement, confirmant l'apport des transformers pour la compréhension contextuelle du langage. L'entraînement complet sur 3 époques (recommandé) nécessite ~18 min.
+Le modèle dépasse le Random Forest (98.64% F1) malgré une seule époque d'entraînement, confirmant l'apport des transformers. L'entraînement complet sur 3 époques (recommandé) nécessite ~18 min.
 
 **Intégration Streamlit** : BERT est automatiquement chargé par l'application et apparaît comme 4ᵉ modèle dans l'onglet Prediction, avec sa matrice de confusion et sa courbe ROC dans le Tableau de bord.
 
 ```bash
 uv add torch
 uv run python src/models/train_bert.py
-uv run streamlit run src/deploy/streamlit_app.py   # BERT charge automatiquement
+uv run streamlit run src/deploy/streamlit_app.py   # BERT chargé automatiquement
 ```
 
 ### B.5 — MLflow (Tracking des expérimentations)
@@ -263,15 +359,13 @@ Le script `src/models/train_with_mlflow.py` enregistre automatiquement pour chaq
 - Les **métriques** (accuracy, precision, recall, F1)
 - Les **artefacts** (modèles sérialisés)
 
-**Intégration Streamlit** : l'onglet MLflow dans l'application affiche les dernières runs, leurs métriques, et propose de lancer l'interface web MLflow.
+**Intégration Streamlit** : l'onglet MLflow affiche les dernières runs, leurs métriques, et propose de lancer l'interface web MLflow.
 
 ```bash
 rm -rf mlruns                    # Départ propre
 uv run python src/models/train_with_mlflow.py
 uv run mlflow ui                 # http://localhost:5000
 ```
-
-L'interface MLflow permet de comparer visuellement les performances des 3 modèles et d'exporter les résultats.
 
 ### B.3 — CI/CD (GitHub Actions)
 
@@ -285,15 +379,46 @@ Les métadonnées YAML intégrées au `README.md` permettent un déploiement clo
 3. Lier ce dépôt GitHub
 4. Le Space détecte automatiquement la configuration et déploie l'application
 
-## Perspectives d'amélioration
+# Perspectives d'amélioration
 
-- Ajout d'un dataset spécialisé hate speech pour améliorer la détection des contenus sensibles
-- Export CSV de l'historique des analyses
-- Mode batch pour analyser un fichier CSV de tweets
+## Améliorations techniques
+
+- **Entraînement complet de BERT** (3 époques) : gain attendu de +0.2-0.5% F1, mais temps d'entraînement de ~18 min sur CPU
+- **Modèles plus légers** : quantisation de BERT (distilBERT 4-bit, ONNX) pour réduire l'inférence à <100 ms sur CPU
+- **Augmentation de la taille du dataset** : la courbe d'apprentissage du Random Forest ne plateauit pas encore, indiquant qu'un dataset plus volumineux améliorerait les performances
+- **SMOTE / oversampling** : tester un sur-échantillonnage de la classe minoritaire pour les modèles sklearn
+
+## Extension des capacités
+
+- **Dataset spécialisé hate speech** : intégrer un corpus (HateXplain, OLID) pour améliorer la détection des contenus sensibles
+- **Détection multilingue** : utiliser XLM-RoBERTa ou mBERT pour supporter le français et d'autres langues
+- **Classification multi-classe** : distinguer haineux, offensant, trompeur, normal plutôt que binaire suspect/non suspect
+- **Détection de l'ironie et du sarcasme** : ajouter des features prosodiques ou des mécanismes d'attention spécifiques
+
+## Améliorations du déploiement
+
+- **Export CSV** de l'historique des analyses dans Streamlit
+- **Mode batch** : analyse d'un fichier CSV complet via l'interface
+- **API REST documentée** avec FastAPI + Swagger (déjà partiellement disponible)
+- **Déploiement cloud** : finaliser le Space Hugging Face avec un modèle pré-entraîné inclus
+- **Monitoring** : ajouter des métriques d'utilisation (nombre de requêtes, latence)
+
+## Pour aller plus loin
+
+- **Analyse causale** : comprendre pourquoi certains tweets sont mal classifiés (erreurs systématiques)
+- **Interprétabilité** : utiliser SHAP ou LIME pour expliquer chaque décision du modèle dans l'interface
+- **Apprentissage actif** : permettre à l'utilisateur de corriger les prédictions et ré-entraîner incrémentalement
+- **Versionnement des modèles** : intégrer DVC pour les modèles BERT (via `dvc add`) et MLflow Model Registry
 
 # Conclusion
 
-Ce projet a permis de mettre en œuvre un pipeline complet de Machine Learning pour la détection de tweets suspects. Les meilleurs résultats (F1 > 98%) montrent la faisabilité de la tâche avec des approches classiques. L'utilisation de DVC assure la reproductibilité du pipeline, et le déploiement via Streamlit/FastAPI permet une utilisation en conditions réelles.
+Ce projet a permis de mettre en œuvre un pipeline complet de Machine Learning pour la détection de tweets suspects, couvrant l'ensemble du cycle de vie : exploration, prétraitement (10 étapes), modélisation (4 modèles), évaluation (CV, Grid Search), optimisation, tracking (MLflow) et déploiement (Streamlit, FastAPI).
+
+Les résultats obtenus (F1 > 98% pour les approches classiques, 99.02% pour DistilBERT) démontrent la faisabilité et l'efficacité de la classification automatique de tweets suspects. L'écart modeste entre TF-IDF et BERT (+0.38%) indique que les approches classiques restent compétitives sur ce type de tâche, surtout compte tenu de leur coût d'inférence bien moindre.
+
+L'utilisation de DVC et GitHub Actions garantit la reproductibilité complète du pipeline, et l'application Streamlit déployée permet une utilisation interactive avec 4 onglets couvrant la prédiction, le dashboard, le tracking MLflow et l'historique.
+
+Les 4 bonus (DistilBERT, MLflow, CI/CD, Hugging Face Spaces) enrichissent le projet et démontrent une maîtrise des outils modernes du Machine Learning en production.
 
 # Références
 
