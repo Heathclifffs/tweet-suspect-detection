@@ -13,7 +13,7 @@ fi
 
 echo "[2/4] Login"
 if [ -n "${HF_TOKEN:-}" ]; then
-    hf auth login --token "$HF_TOKEN"
+    hf auth login --token "$HF_TOKEN" --force
 else
     hf auth login
 fi
@@ -24,12 +24,8 @@ echo "  -> $USER"
 echo "[3/4] Creation du Space..."
 hf repos create "$REPO" --type space --space-sdk docker --exist-ok
 
-echo "[4/4] Push du code..."
-TOKEN=${HF_TOKEN:-$(hf auth token 2>/dev/null)}
-git remote remove "$REMOTE_NAME" 2>/dev/null || true
-git remote add "$REMOTE_NAME" "https://$USER:$TOKEN@huggingface.co/spaces/$USER/$REPO"
-git push "$REMOTE_NAME" HEAD:main --force
-
+echo "[4/4] Push du code avec hf upload..."
+hf upload "$REPO" . --type space --include "src/" --include "data/processed/" --include "models/" --include "pyproject.toml" --include "uv.lock" --include "Dockerfile"
 echo ""
 echo "=== Fini ! ==="
 echo "Lien : https://huggingface.co/spaces/$USER/$REPO"
