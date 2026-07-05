@@ -87,7 +87,7 @@ La séparation train/test a été faite en **80/20 avec stratification** pour pr
 | Logistic Regression (C=0.1) | 98.31% ± 0.18% | 98.36% | 97.04% | 98.10% | 98.61% |
 | Naive Bayes | 96.10% ± 0.10% | 96.12% | 92.76% | 92.57% | 99.95% |
 | Random Forest (200 arbres) | 98.52% ± 0.15% | 98.64% | 97.54% | 98.16% | 99.12% |
-| **DistilBERT** (bonus) | — | **99.02%** | **98.24%** | **98.85%** | **99.19%** |
+| **DistilBERT** (bonus) | N/A | **99.02%** | **98.24%** | **98.85%** | **99.19%** |
 
 Le **Random Forest** surpasse très légèrement la régression logistique (98.64% vs 98.36%). Le **DistilBERT** atteint **99.02%** de F1-Score, démontrant la puissance des transformers. NB triche sur Recall (99.95%) car il prédit quasi-systématiquement la classe majoritaire.
 
@@ -117,7 +117,7 @@ La courbe d'apprentissage du Random Forest montre que les performances continuen
 
 Les mots les plus discriminants pour la classification sont majoritairement liés à la négativité (`hate`, `die`, `kill`, `death`, `suicide`), mais aussi à des thématiques récurrentes (`covid`, `trump`, `god`). Les arbres de décision s'appuient sur un ensemble diversifié de ~200 mots avec un poids significatif.
 
-## Grid Search — Optimisation des hyperparamètres
+## Optimisation des hyperparamètres (Grid Search)
 
 Une recherche systématique par **Grid Search** avec validation croisée a été menée :
 
@@ -175,18 +175,18 @@ uv run dvc push           # Pousser vers le cache distant
 # 1. Pipeline classique (preprocess → train → evaluate)
 uv run dvc repro
 
-# 2. Bonus — DistilBERT (nécessite torch)
+# 2. DistilBERT (nécessite torch)
 uv add torch
 uv run python src/models/train_bert.py
 
-# 3. Bonus — MLflow (tracking des expérimentations)
+# 3. MLflow (tracking des expérimentations)
 uv run python src/models/train_with_mlflow.py
 uv run mlflow ui          # Interface web MLflow
 
-# 4. Bonus — CI/CD
+# 4. CI/CD
 # Automatique : .github/workflows/ci.yml s'exécute à chaque push
 
-# 5. Bonus — Hugging Face Spaces
+# 5. Hugging Face Spaces
 # Créer un Space sur huggingface.co/new-space, lier ce dépôt
 ```
 
@@ -226,7 +226,7 @@ Saisie d'un tweet et classification par les **4 modèles** (Logistic Regression,
 
 Tableau de bord interactif généré avec **Plotly** permettant de :
 - Sélectionner un modèle parmi **les 4** (dont BERT) via un menu déroulant
-- Visualiser la matrice de confusion interactive (couleurs, survol) — BERT inclus
+- Visualiser la matrice de confusion interactive (couleurs, survol), BERT inclus
 - Afficher les courbes ROC des 4 modèles superposées avec l'AUC
 - Comparer les performances (accuracy, precision, recall, F1) sous forme de barres groupées
 - Explorer l'importance des features (coefficients de la régression logistique ou importance de Gini pour Random Forest)
@@ -317,7 +317,7 @@ Le dataset contient principalement des tweets en anglais sur des thématiques sp
 
 ### Limite de la tâche de classification
 
-Un tweet classé "non suspect" n'est pas nécessairement "sain" — le modèle ne détecte que les similarités avec le dataset d'entraînement. Un avertissement est affiché dans l'interface Streamlit.
+Un tweet classé "non suspect" n'est pas nécessairement "sain" : le modèle ne détecte que les similarités avec le dataset d'entraînement. Un avertissement est affiché dans l'interface Streamlit.
 
 ### Non-détection des formes subtiles
 
@@ -331,7 +331,7 @@ Les approches TF-IDF et même BERT (avec un seul passage) peuvent manquer :
 
 En complément du cahier des charges initial, 4 fonctionnalités bonus ont été implémentées avec succès :
 
-### B.1 — DistilBERT (Transformers)
+### B.1 : DistilBERT (Transformers)
 
 Un script d'entraînement `src/models/train_bert.py` fine-tune **DistilBERT** sur le dataset de tweets. Résultats après 1 époque (sur CPU, ~6 min) :
 
@@ -352,7 +352,7 @@ uv run python src/models/train_bert.py
 uv run streamlit run src/deploy/streamlit_app.py   # BERT chargé automatiquement
 ```
 
-### B.5 — MLflow (Tracking des expérimentations)
+### B.5 : MLflow (Tracking des expérimentations)
 
 Le script `src/models/train_with_mlflow.py` enregistre automatiquement pour chaque modèle :
 - Les **hyperparamètres** (via `get_params()`)
@@ -367,11 +367,11 @@ uv run python src/models/train_with_mlflow.py
 uv run mlflow ui                 # http://localhost:5000
 ```
 
-### B.3 — CI/CD (GitHub Actions)
+### B.3 : CI/CD (GitHub Actions)
 
 Le workflow `.github/workflows/ci.yml` s'exécute automatiquement à chaque push sur `main` et reproduit l'intégralité du pipeline DVC, garantissant que les modifications ne cassent pas la pipeline.
 
-### B.2 — Hugging Face Spaces
+### B.2 : Hugging Face Spaces
 
 L'application est déployée en ligne :
 

@@ -22,7 +22,7 @@ uv run bash scripts/deploy_hf_space.sh
 
 ## Contexte
 
-Projet d'examen M2 FD&IA — *Construction de Modèles et Déploiement*.
+Projet d'examen M2 FD&IA : *Construction de Modèles et Déploiement*.
 
 L'objectif est de couvrir l'ensemble du cycle de vie d'un projet de Machine Learning : exploration, prétraitement, modélisation, évaluation, optimisation et déploiement.
 
@@ -103,7 +103,7 @@ uv run streamlit run src/deploy/streamlit_app.py
 uv run jupyter lab
 ```
 
-### Bonus — reproduction intégrale
+### Reproduction intégrale (core + bonus)
 
 ```bash
 # 8. DistilBERT (nécessite torch, ~6 min sur CPU)
@@ -117,10 +117,10 @@ rm -rf mlruns
 uv run python src/models/train_with_mlflow.py
 uv run mlflow ui            # Interface web sur http://localhost:5000
 
-# 10. CI/CD — automatique à chaque push (GitHub Actions)
+# 10. CI/CD : automatique à chaque push (GitHub Actions)
 # Voir .github/workflows/ci.yml
 
-# 11. Hugging Face Spaces — déploiement cloud
+# 11. Hugging Face Spaces : déploiement cloud
 # Créer un Space sur huggingface.co/new-space, SDK Streamlit
 ```
 
@@ -240,7 +240,7 @@ Le rapport final est disponible dans `reports/rapport.pdf`.
 
 ## Bonus
 
-### B.1 — BERT (Transformers)
+### B.1 : BERT (Transformers)
 
 **DistilBERT** fine-tune sur le dataset avec `transformers` + `torch`.
 
@@ -270,7 +270,7 @@ cat models/bert_metrics.json
 uv run streamlit run src/deploy/streamlit_app.py
 ```
 
-### B.5 — MLflow (Tracking des expérimentations)
+### B.5 : MLflow (Tracking des expérimentations)
 
 Chaque entrainement est tracké automatiquement par **MLflow** :
 
@@ -324,7 +324,7 @@ Ce depot est compatible avec [Hugging Face Spaces](https://huggingface.co/new-sp
 
 ## Auteur
 
-**Yipene Harold Ezekiel BASSOLE** — M2 FD&IA
+**Yipene Harold Ezekiel BASSOLE** - M2 FD&IA
 
 Projet réalisé dans le cadre du *Construction de Modèles et Déploiement*.
 
