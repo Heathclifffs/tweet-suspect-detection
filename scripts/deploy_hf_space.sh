@@ -25,12 +25,9 @@ echo "[3/4] Creation du Space..."
 hf repos create "$REPO" --type space --space-sdk docker --exist-ok
 
 echo "[4/4] Push du code..."
+TOKEN=${HF_TOKEN:-$(hf auth token 2>/dev/null)}
 git remote remove "$REMOTE_NAME" 2>/dev/null || true
-if [ -n "${HF_TOKEN:-}" ]; then
-    git remote add "$REMOTE_NAME" "https://$USER:$HF_TOKEN@huggingface.co/spaces/$USER/$REPO"
-else
-    git remote add "$REMOTE_NAME" "https://huggingface.co/spaces/$USER/$REPO"
-fi
+git remote add "$REMOTE_NAME" "https://$USER:$TOKEN@huggingface.co/spaces/$USER/$REPO"
 git push "$REMOTE_NAME" HEAD:main --force
 
 echo ""
