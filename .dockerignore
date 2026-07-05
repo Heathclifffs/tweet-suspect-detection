@@ -1,0 +1,16 @@
+.git/
+.gitignore
+.dvc/
+dvc.lock
+dvc.yaml
+mlruns/
+__pycache__/
+*.pyc
+.venv
+notebooks/
+models/bert_model/
+models/bert_checkpoints/
+models/bert_predictions.csv
+models/bert_confusion_matrix.npy
+models/bert_roc.npz
+reports/
