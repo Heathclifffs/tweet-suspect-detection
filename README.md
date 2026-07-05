@@ -12,7 +12,13 @@ pinned: false
 
 Classification automatique de tweets suspects (haineux, offensants, trompeurs) avec un pipeline ML reproductible basé sur DVC.
 
-[Deploiement sur Hugging Face Spaces](https://huggingface.co/new-space) : creer un Space, lier ce depot GitHub, et le SDK Streamlit sera automatiquement detecte.
+Deploiement automatise sur Hugging Face Spaces :
+
+```bash
+uv run bash scripts/deploy_hf_space.sh
+```
+
+Le script cree le Space, configure le remote et push le code. Le README contient deja les metadonnees YAML necessaires (`sdk: streamlit`, `app_file: src/deploy/streamlit_app.py`).
 
 ## Contexte
 
