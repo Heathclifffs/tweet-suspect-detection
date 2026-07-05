@@ -18,7 +18,7 @@ else
     hf auth login
 fi
 
-USER=$(hf auth whoami 2>/dev/null | tail -1)
+USER=$(hf auth whoami 2>/dev/null | awk -F': ' '/user:/ {print $2}')
 echo "  -> $USER"
 
 echo "[3/4] Creation du Space..."
