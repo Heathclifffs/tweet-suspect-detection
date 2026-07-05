@@ -29,8 +29,8 @@ def tokenize_function(examples, tokenizer):
 
 def train_bert(input_path: str, model_dir: str):
     df = pd.read_csv(input_path)
-    X = df["clean_message"].values
-    y = df["label"].values
+    X = df["clean_message"].to_numpy()
+    y = df["label"].to_numpy()
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
@@ -53,16 +53,14 @@ def train_bert(input_path: str, model_dir: str):
 
     args = TrainingArguments(
         output_dir=f"{model_dir}/bert_checkpoints",
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
-        num_train_epochs=3,
+        num_train_epochs=1,
         per_device_train_batch_size=16,
         per_device_eval_batch_size=64,
         warmup_steps=500,
         weight_decay=0.01,
-        logging_dir=f"{model_dir}/bert_logs",
         report_to="none",
-        disable_tqdm=True,
     )
 
     trainer = Trainer(

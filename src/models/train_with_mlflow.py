@@ -41,11 +41,8 @@ def train(input_path: str, model_dir: str):
 
             mlflow.log_param("model_name", name)
             mlflow.log_param("vectorizer", "tfidf")
-            mlflow.log_param("max_features", 5000)
-
-            if hasattr(model, "get_params"):
-                for param, value in model.get_params().items():
-                    mlflow.log_param(param, value)
+            for param, value in model.get_params().items():
+                mlflow.log_param(param, value)
 
             model.fit(X_train_vec, y_train)
             joblib.dump(model, f"{model_dir}/{name}.pkl")

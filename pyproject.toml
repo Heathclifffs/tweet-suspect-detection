@@ -5,6 +5,8 @@ description = "Détection de Tweets Suspects - Projet M2 FD&IA"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "accelerate>=1.14.0",
+    "datasets>=5.0.0",
     "dvc>=3.67.1",
     "gdown>=6.1.0",
     "ipykernel>=7.3.0",
@@ -21,6 +23,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "sentencepiece>=0.2.1",
     "streamlit>=1.58.0",
+    "torch>=2.12.1",
     "transformers>=5.13.0",
     "weasyprint>=69.0",
     "wordcloud>=1.9.6",

@@ -45,3 +45,4 @@ Thumbs.db
 mlruns/
 models/bert_checkpoints/
 models/bert_logs/
+models/bert_model/
